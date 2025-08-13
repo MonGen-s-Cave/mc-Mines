@@ -1,6 +1,6 @@
 package com.mongenscave.mcmines.listeners;
 
-import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.Menu;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

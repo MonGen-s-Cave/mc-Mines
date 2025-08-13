@@ -4,6 +4,4 @@ main: com.mongenscave.mcmines.McMines
 api-version: '1.18'
 authors: [ coma112, kxtsoo ]
 folia-supported: true
-
-softdepend:
-  - Nexo
+softdepend: [ Nexo, PlaceholderAPI ]

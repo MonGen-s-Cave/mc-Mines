@@ -1,4 +1,4 @@
-package com.mongenscave.mcmines.data;
+package com.mongenscave.mcmines.identifiers;
 
 public enum SelectionMode {
     MINE_AREA,

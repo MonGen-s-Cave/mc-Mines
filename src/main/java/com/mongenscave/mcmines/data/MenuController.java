@@ -1,4 +1,4 @@
-package com.mongenscave.mcmines.data.common;
+package com.mongenscave.mcmines.data;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

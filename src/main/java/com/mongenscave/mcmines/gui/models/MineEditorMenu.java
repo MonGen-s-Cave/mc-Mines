@@ -1,8 +1,8 @@
 package com.mongenscave.mcmines.gui.models;
 
 import com.mongenscave.mcmines.McMines;
-import com.mongenscave.mcmines.data.SelectionMode;
-import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.identifiers.SelectionMode;
+import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.Menu;
 import com.mongenscave.mcmines.identifiers.keys.ItemKeys;
 import com.mongenscave.mcmines.identifiers.keys.MenuKeys;

@@ -2,8 +2,8 @@ package com.mongenscave.mcmines.commands;
 
 import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.data.BlockData;
-import com.mongenscave.mcmines.data.SelectionMode;
-import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.identifiers.SelectionMode;
+import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.models.MineEditorMenu;
 import com.mongenscave.mcmines.gui.models.MineSelectorMenu;
 import com.mongenscave.mcmines.managers.MineManager;

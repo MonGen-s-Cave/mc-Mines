@@ -2,8 +2,8 @@ package com.mongenscave.mcmines.managers;
 
 import com.github.Anon8281.universalScheduler.scheduling.tasks.MyScheduledTask;
 import com.mongenscave.mcmines.McMines;
-import com.mongenscave.mcmines.data.SelectionMode;
-import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.identifiers.SelectionMode;
+import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.models.MineEditorMenu;
 import com.mongenscave.mcmines.identifiers.keys.MessageKeys;
 import com.mongenscave.mcmines.models.Mine;

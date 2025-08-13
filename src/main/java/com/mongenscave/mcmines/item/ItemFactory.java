@@ -2,7 +2,7 @@ package com.mongenscave.mcmines.item;
 
 import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.config.Config;
-import com.mongenscave.mcmines.data.common.ItemData;
+import com.mongenscave.mcmines.data.ItemData;
 import com.mongenscave.mcmines.processor.MessageProcessor;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;

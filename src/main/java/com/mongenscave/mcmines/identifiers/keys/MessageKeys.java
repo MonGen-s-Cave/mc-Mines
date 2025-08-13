@@ -58,13 +58,15 @@ public enum MessageKeys {
         return MessageProcessor.process(language.getString(path)).replace("%prefix%", MessageProcessor.process(language.getString("prefix")));
     }
 
-    public @NotNull String with(Object... kv) {
+    public @NotNull String with(@NotNull Object... kv) {
         String msg = getMessage();
+
         for (int i = 0; i + 1 < kv.length; i += 2) {
             String k = String.valueOf(kv[i]);
             String v = String.valueOf(kv[i + 1]);
             msg = msg.replace("{" + k + "}", v);
         }
+
         return msg;
     }
 }

@@ -33,7 +33,7 @@ dependencies {
     zap("io.github.revxrsal:lamp.common:4.0.0-rc.12")
     zap("io.github.revxrsal:lamp.brigadier:4.0.0-rc.12")
     zap("com.github.Anon8281:UniversalScheduler:0.1.6")
-    zap("dev.dejvokep:boosted-yaml:1.3.6")
+    implementation("dev.dejvokep:boosted-yaml:1.3.6")
 }
 
 java {

@@ -2,15 +2,19 @@ package com.mongenscave.mcmines.gui.models;
 
 import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.data.BlockData;
-import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.Menu;
 import com.mongenscave.mcmines.identifiers.keys.ItemKeys;
 import com.mongenscave.mcmines.managers.MineManager;
+import com.mongenscave.mcmines.managers.PromptManager;
 import com.mongenscave.mcmines.models.Mine;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -29,152 +33,177 @@ public final class MineBlocksMenu extends Menu {
         this.mine = mine;
     }
 
-    @Override public void handleMenu(@NotNull InventoryClickEvent e) {
+    @Override
+    public void handleMenu(@NotNull InventoryClickEvent e) {
         e.setCancelled(true);
         var slot = e.getSlot();
         var item = e.getCurrentItem();
         if (item == null || item.getType() == Material.AIR) return;
 
-        ItemKeys key = slotToKey.get(slot);
-        if (key != null) {
-//            switch (key) {
-//                case BLOCKS_BACK -> new MineEditorMenu(menuController, mine).open();
-//                case BLOCKS_ADD -> {
-//                    var p = menuController.owner();
-//                    PromptManager.request(p, "Type material and chance (e.g. 'STONE 25' or 'nexo:copper_ore 15'):",
-//                            (player, msg) -> {
-//                                String[] parts = msg.trim().split("\\s+");
-//                                if (parts.length == 0) { player.sendMessage(Component.text("Missing args.")); return; }
-//                                String material = parts[0];
-//                                Integer chance = null;
-//                                if (parts.length >= 2) { try { chance = Integer.parseInt(parts[1]); } catch (NumberFormatException ignored) {} }
-//                                if (chance == null) {
-//                                    PromptManager.request(player, "Type chance % (1..100):", (pp, s) -> {
-//                                        try { int c = Integer.parseInt(s); addOrError(pp, material, c); }
-//                                        catch (NumberFormatException ex) { pp.sendMessage(Component.text("Invalid chance.")); }
-//                                    });
-//                                } else addOrError(player, material, chance);
-//                            });
-//                    menuController.owner().closeInventory();
-//                }
-//                default -> {}
-//            }
-            return;
-        }
+        var player = menuController.owner();
 
+        // Ha már van blokk ebben a slotban (szerkesztés)
         String blockKey = slotToBlock.get(slot);
-        if (blockKey == null) return;
+        if (blockKey != null) {
+            Optional<BlockData> opt = mine.getBlockDataList().stream()
+                    .filter(bd -> bd.material().equalsIgnoreCase(blockKey)).findFirst();
+            if (opt.isEmpty()) return;
 
-        Optional<BlockData> opt = mine.getBlockDataList().stream()
-                .filter(bd -> bd.material().equalsIgnoreCase(blockKey)).findFirst();
-        if (opt.isEmpty()) return;
+            BlockData bd = opt.get();
 
-        BlockData bd = opt.get();
+            // Middle click vagy Q = törlés
+            if (e.getClick() == ClickType.MIDDLE || e.getClick() == ClickType.DROP) {
+                mine.removeBlockData(bd.material());
+                mm.updateMine(mine);
+                player.sendMessage(Component.text("Eltávolítva: " + bd.material()).color(NamedTextColor.GREEN));
+                setMenuItems();
+                return;
+            }
 
-        int delta = 0;
-        if (e.isLeftClick() && !e.isShiftClick()) delta = +1;
-        else if (e.isRightClick() && !e.isShiftClick()) delta = -1;
-        else if (e.isLeftClick()) delta = +5;
-        else if (e.isRightClick()) delta = -5;
+            // Esély módosítás
+            int delta = 0;
+            if (e.getClick() == ClickType.LEFT) delta = +1;
+            else if (e.getClick() == ClickType.RIGHT) delta = -1;
+            else if (e.getClick() == ClickType.SHIFT_LEFT) delta = +5;
+            else if (e.getClick() == ClickType.SHIFT_RIGHT) delta = -5;
 
-        if (e.getClick().isMouseClick() || e.getClick().isKeyboardClick()) {
-            mine.removeBlockData(bd.material());
-            mm.updateMine(mine);
-            menuController.owner().sendMessage(Component.text("Removed " + bd.material()));
-            setMenuItems();
+            if (delta != 0) {
+                int newChance = Math.max(1, Math.min(100, bd.chance() + delta));
+                mine.removeBlockData(bd.material());
+                mine.addBlockData(bd.material(), newChance);
+                mm.updateMine(mine);
+                setMenuItems();
+            }
             return;
         }
 
-        if (delta != 0) {
-            int newC = Math.max(1, Math.min(100, bd.chance() + delta));
-            mine.removeBlockData(bd.material());
-            mine.addBlockData(bd.material(), newC);
-            mm.updateMine(mine);
-            setMenuItems();
-        }
+        // Ha üres slot, akkor új blokk hozzáadása
+        // Az inventory-ban lévő item alapján
+        Material clickedMaterial = item.getType();
+        String materialName = clickedMaterial.name();
+
+        player.closeInventory();
+
+        PromptManager.request(player,
+                "Írd be az esélyt % a(z) " + materialName + " blokkhoz (1..100):",
+                (p, msg) -> {
+                    try {
+                        int chance = Integer.parseInt(msg.trim());
+                        addOrError(p, materialName, chance);
+                    } catch (NumberFormatException ex) {
+                        p.sendMessage(Component.text("Érvénytelen esély! Csak számot adj meg.").color(NamedTextColor.RED));
+                    }
+                });
     }
 
     private void addOrError(org.bukkit.entity.Player player, String material, int chance) {
-        if (chance <= 0 || chance > 100) { player.sendMessage(Component.text("Chance must be 1..100")); return; }
+        if (chance <= 0 || chance > 100) {
+            player.sendMessage(Component.text("Az esélynek 1 és 100 között kell lennie!").color(NamedTextColor.RED));
+            return;
+        }
 
         final String storeKey;
         try {
             storeKey = McMines.getInstance().getBlockPlatforms().normalizeForStore(material);
         } catch (Exception ex) {
-            player.sendMessage(Component.text("Invalid material: " + material + " (" + ex.getMessage() + ")"));
+            player.sendMessage(Component.text("Érvénytelen material: " + material + " (" + ex.getMessage() + ")")
+                    .color(NamedTextColor.RED));
             return;
         }
 
+        // Meglévő eltávolítása és új hozzáadása
         mine.removeBlockData(storeKey);
         mine.addBlockData(storeKey, chance);
         mm.updateMine(mine);
-        player.sendMessage(Component.text("Added " + storeKey + " with " + chance + "%"));
+
+        player.sendMessage(Component.text("Hozzáadva: " + storeKey + " - " + chance + "%")
+                .color(NamedTextColor.GREEN));
+
+        // Menu újranyitása
         new MineBlocksMenu(menuController, mine).open();
     }
 
-    @Override public void setMenuItems() {
+    @Override
+    public void setMenuItems() {
         inventory.clear();
         slotToKey.clear();
         slotToBlock.clear();
 
-//        setFixed(ItemKeys.BLOCKS_BACK);
-//        setFixed(ItemKeys.BLOCKS_ADD);
-
         findAvailableSlots();
 
+        // Blokkok listázása esély szerint rendezve
         List<BlockData> list = new ArrayList<>(mine.getBlockDataList());
         list.sort(Comparator.comparingInt(BlockData::chance).reversed());
 
-        for (int i = 0; i < list.size() && i < freeSlots.size(); i++) {
+        for (int i = 0; i < list.size() && i < inventory.getSize(); i++) {
             BlockData bd = list.get(i);
-            int slot = freeSlots.get(i);
             ItemStack icon = BlockIconFactory.iconFor(bd);
-            inventory.setItem(slot, icon);
-            slotToBlock.put(slot, bd.material());
+            inventory.setItem(i, icon);
+            slotToBlock.put(i, bd.material());
         }
-    }
-
-    private void setFixed(@NotNull ItemKeys key) {
-        ItemStack item = key.getItem(); if (item == null) return;
-        int slot = key.getSlot();
-        inventory.setItem(slot, item);
-        slotToKey.put(slot, key);
     }
 
     private void findAvailableSlots() {
+        // Ez már nem kell, mivel közvetlenül a slotokba rakjuk a blokkokat
         freeSlots = new ArrayList<>();
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null) freeSlots.add(i);
+            if (inventory.getItem(i) == null) {
+                freeSlots.add(i);
+            }
         }
     }
 
-    @Override public String getMenuName() { return "Blocks — " + mine.getName(); }
-    @Override public int getSlots() { return 54; }
-    @Override public int getMenuTick() { return 40; }
+    @Override
+    public String getMenuName() {
+        return "Blokkok — " + mine.getName();
+    }
+
+    @Override
+    public int getSlots() {
+        return 54;
+    }
+
+    @Override
+    public int getMenuTick() {
+        return 40;
+    }
 
     private static final class BlockIconFactory {
         static ItemStack iconFor(BlockData bd) {
             Material mat = guessIcon(bd.material());
-            var is = new ItemStack(mat);
-            var im = is.getItemMeta();
-            im.setDisplayName(bd.material());
-            im.setLore(List.of(
-                    "Chance: " + bd.chance() + "%",
-                    "LMB +1%  | RMB -1%",
-                    "Shift+LMB +5% | Shift+RMB -5%",
-                    "Middle/Q: Remove"
-            ));
-            is.setItemMeta(im);
-            return is;
+            var itemStack = new ItemStack(mat);
+            ItemMeta meta = itemStack.getItemMeta();
+
+            if (meta != null) {
+                meta.displayName(Component.text(bd.material()).color(NamedTextColor.YELLOW));
+                meta.lore(Arrays.asList(
+                        Component.text("Esély: " + bd.chance() + "%").color(NamedTextColor.GREEN),
+                        Component.text(""),
+                        Component.text("Bal klik: +1%").color(NamedTextColor.GRAY),
+                        Component.text("Jobb klik: -1%").color(NamedTextColor.GRAY),
+                        Component.text("Shift + Bal: +5%").color(NamedTextColor.GRAY),
+                        Component.text("Shift + Jobb: -5%").color(NamedTextColor.GRAY),
+                        Component.text("Középső/Q: Törlés").color(NamedTextColor.RED),
+                        Component.text(""),
+                        Component.text("Üres helyre klikkelj új blokk hozzáadásához!").color(NamedTextColor.AQUA)
+                ));
+                itemStack.setItemMeta(meta);
+            }
+
+            return itemStack;
         }
+
         static Material guessIcon(String key) {
             if (!key.contains(":")) {
-                var m = Material.matchMaterial(key);
-                return m != null ? m : Material.STONE;
+                Material material = Material.matchMaterial(key);
+                return material != null ? material : Material.STONE;
             }
+
+            // Custom plugin támogatás
             if (key.startsWith("nexo:")) return Material.NETHER_STAR;
             if (key.startsWith("oraxen:")) return Material.ENDER_EYE;
             if (key.startsWith("itemsadder:")) return Material.NAME_TAG;
+
             return Material.PAPER;
         }
     }

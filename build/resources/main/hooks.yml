@@ -1,0 +1,7 @@
+hooks:
+  register:
+    Nexo: false
+    ItemsAdder: false
+    Oraxen: false
+
+version: '1'

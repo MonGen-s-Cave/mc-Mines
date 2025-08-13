@@ -1,7 +1,7 @@
 package com.mongenscave.mcmines.gui.models;
 
 import com.mongenscave.mcmines.McMines;
-import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.PaginatedMenu;
 import com.mongenscave.mcmines.identifiers.keys.MessageKeys;
 import com.mongenscave.mcmines.managers.PromptManager;
