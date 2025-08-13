@@ -1,2 +1,52 @@
+prefix: "&#758CE3[Mines]"
+
+messages:
+  no-permission: "%prefix% &cNincs jogod ehhez."
+  player-required: "%prefix% &cEzt csak játékos használhatja."
+
+  wand:
+    start-mine: "%prefix% &7Kijelölés indult a &emine area&7-hoz. &8(Bal: Pos1, Jobb: Pos2)"
+    start-entrance: "%prefix% &7Kijelölés indult az &bentrance area&7-hoz. &8(Bal: Pos1, Jobb: Pos2)"
+    hint-save: "%prefix% &7Mentéshez: &fSHIFT + jobb klikk"
+    need-both: "%prefix% &cElőbb jelöld ki mindkét pontot!"
+    pos1: "%prefix% &aPos1 beállítva!"
+    pos2: "%prefix% &aPos2 beállítva!"
+    done-mine: "%prefix% &aA bánya területe frissítve!"
+    done-entrance: "%prefix% &aA belépő terület frissítve!"
+    cancelled: "%prefix% &7Kijelölés megszakítva."
+    no-space: "%prefix% &cNincs hely az inventorydban a wand-nek!"
+    item:
+      name: "&6Selection Wand"
+      lore1: "&7Bal klikk: &fPos1"
+      lore2: "&7Jobb klikk: &fPos2"
+      lore3: "&7Mentés: &fSHIFT + jobb klikk"
+
+  prompt:
+    create:
+      name:
+        start: "%prefix% &eÍrd be az új bánya nevét (A–Za–z0–9_-, max 32)."
+        invalid: "%prefix% &cHibás név formátum!"
+        exists: "%prefix% &cMár létezik ilyen nevű bánya: {name}"
+      reset:
+        start: "%prefix% &7Írd be a reset időt másodpercben (&f1..86400&7). Üres / '-' = &f300&7."
+        invalid-number: "%prefix% &cÉrvénytelen szám!"
+        out-of-range: "%prefix% &cA reset idő &f1..86400&c között legyen."
+      success: "%prefix% &aBánya létrehozva: &f{name}&7 (&f{seconds}s&7)."
+
+    editor:
+      set-reset:
+        start: "%prefix% &7Írd be az &fúj reset időt &7másodpercben (&8pl: &f300&8)&7!"
+        range: "%prefix% &cA megadott idő nem megfelelő. &7(1..86400)"
+        success: "%prefix% &aSiker! &7Reset idő: &f{seconds}s"
+        invalid: "%prefix% &cÉrvénytelen számformátum!"
+      rename:
+        start: "%prefix% &7Írd be az új bányanévet &8(&71-32 betű/szám, _ -&8)&7:"
+        invalid: "%prefix% &cÉrvénytelen név! &7Csak betű/szám, '_' és '-' engedélyezett (1-32)."
+        exists: "%prefix% &cMár létezik ilyen bánya: &f{name}"
+        success: "%prefix% &aÁtnevezve erre: &f{name}"
+      set-permission:
+        start: "%prefix% &7Írd be az &fbelépési permissiont&7, vagy &f-&7 a törléshez!"
+        cleared: "%prefix% &aBelépési permission törölve."
+        set: "%prefix% &aBelépési permission beállítva: &f{permission}"
 
 version: '1'

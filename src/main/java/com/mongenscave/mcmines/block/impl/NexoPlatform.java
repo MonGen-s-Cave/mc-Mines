@@ -1,9 +1,8 @@
 package com.mongenscave.mcmines.block.impl;
 
-import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.block.BlockPlatform;
-import com.nexomc.nexo.NexoPlugin;
 import com.nexomc.nexo.api.NexoBlocks;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 public final class NexoPlatform implements BlockPlatform {
@@ -15,7 +14,7 @@ public final class NexoPlatform implements BlockPlatform {
 
     @Override
     public boolean isEnabled() {
-        return McMines.getInstance().getServer().getPluginManager().isPluginEnabled(NexoPlugin.instance());
+        return Bukkit.getPluginManager().isPluginEnabled("Nexo");
     }
 
     @Override

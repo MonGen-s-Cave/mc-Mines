@@ -41,11 +41,12 @@ public final class BlockPlatforms {
         }
 
         BlockPlatform p = platforms.get(key.namespace());
-        if (p == null || p.isEnabled())
+        if (p == null || !p.isEnabled())
             throw new IllegalStateException("Platform not available: " + key.namespace());
 
         return new Placement() {
-            @Override public void placeAt(Location loc) {
+            @Override
+            public void placeAt(Location loc) {
                 try { p.place(key.id(), loc); }
                 catch (Exception e) { throw new RuntimeException(e); }
             }
@@ -60,7 +61,7 @@ public final class BlockPlatforms {
             matchMaterialFast(key.raw());
         } else {
             BlockPlatform p = platforms.get(key.namespace());
-            if (p == null || p.isEnabled())
+            if (p == null || !p.isEnabled())
                 throw new IllegalStateException("Platform not available: " + key.namespace());
         }
 

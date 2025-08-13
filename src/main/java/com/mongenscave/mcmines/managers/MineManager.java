@@ -13,16 +13,11 @@ import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import lombok.Getter;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MineManager {
@@ -119,6 +114,66 @@ public class MineManager {
         return false;
     }
 
+    public synchronized void renameMine(@NotNull Mine mine, @NotNull String newName) {
+        String oldName = mine.getName();
+        if (oldName.equalsIgnoreCase(newName)) return;
+
+        if (getMine(newName) != null) {
+            throw new IllegalArgumentException("Mine already exists: " + newName);
+        }
+
+        int resetAfter = mine.getResetAfter();
+        Location minePos1 = mine.getMineAreaPos1();
+        Location minePos2 = mine.getMineAreaPos2();
+        Location entrancePos1 = mine.getEntranceAreaPos1();
+        Location entrancePos2 = mine.getEntranceAreaPos2();
+        String entrancePerm = mine.getEntrancePermission();
+
+        List<BlockData> blocks = new ArrayList<>(mine.getBlockDataList());
+
+        deleteMine(oldName);
+
+        createMine(newName, resetAfter);
+        Mine renamed = getMine(newName);
+        if (renamed == null) {
+            createMine(oldName, resetAfter);
+            Mine restored = getMine(oldName);
+            if (restored != null) {
+                if (minePos1 != null) restored.setMineAreaPos1(minePos1);
+                if (minePos2 != null) restored.setMineAreaPos2(minePos2);
+                if (entrancePos1 != null) restored.setEntranceAreaPos1(entrancePos1);
+                if (entrancePos2 != null) restored.setEntranceAreaPos2(entrancePos2);
+                restored.setEntrancePermission(entrancePerm);
+
+                if (!restored.getBlockDataList().isEmpty()) {
+                    for (BlockData existing : new ArrayList<>(restored.getBlockDataList())) {
+                        restored.removeBlockData(existing.material());
+                    }
+                }
+                for (BlockData bd : blocks) restored.addBlockData(bd.material(), bd.chance());
+                updateMine(restored);
+            }
+            throw new IllegalStateException("Failed to create renamed mine: " + newName);
+        }
+
+        if (minePos1 != null) renamed.setMineAreaPos1(minePos1);
+        if (minePos2 != null) renamed.setMineAreaPos2(minePos2);
+        if (entrancePos1 != null) renamed.setEntranceAreaPos1(entrancePos1);
+        if (entrancePos2 != null) renamed.setEntranceAreaPos2(entrancePos2);
+        renamed.setEntrancePermission(entrancePerm);
+
+        if (!renamed.getBlockDataList().isEmpty()) {
+            for (BlockData existing : new ArrayList<>(renamed.getBlockDataList())) {
+                renamed.removeBlockData(existing.material());
+            }
+        }
+        for (BlockData bd : blocks) {
+            renamed.addBlockData(bd.material(), bd.chance());
+        }
+
+        updateMine(renamed);
+    }
+
     @Nullable
     public Mine getMine(@NotNull String name) {
         return mines.get(name);
@@ -144,6 +199,7 @@ public class MineManager {
         resetMine(mine);
     }
 
+    @SuppressWarnings("all")
     public void resetMine(@NotNull Mine mine) {
         if (!mine.isValidMineArea()) {
             LoggerUtils.error("Cannot reset mine '" + mine.getName() + "': invalid mine area");

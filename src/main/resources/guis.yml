@@ -1,0 +1,118 @@
+mine-selector:
+  title: "&8ꜱᴇʟᴇᴄᴛ ᴀ ᴍɪɴᴇ ᴏʀ ᴄʀᴇᴀᴛᴇ ᴏɴᴇ"
+  size: 36
+
+  mine-item:
+    material: "CONDUIT"
+    name: "&#758CE3Mine {mine_name}"
+    lore:
+      - ""
+      - "&#758CE3Settings:"
+      - " &8› &7Reset: &f{reset_seconds}s"
+      - " &8› &7Area valid: &f{area_valid}"
+      - " &8› &7Blocks: &f{blocks_count}"
+      - ""
+      - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fᴇᴅɪᴛ ᴛʜᴇ ᴍɪɴᴇ"
+      - "&#758CE3ǫ-ᴋᴇʏ: &fᴅᴇʟᴇᴛᴇ ᴛʜᴇ ᴍɪɴᴇ"
+
+  items:
+    reload:
+      slot: 30
+      material: TURTLE_EGG
+      name: '&#758CE3Reload The Plugin'
+      lore:
+        - ""
+        - "&#758CE3Information:"
+        - " &fClick here to reload"
+        - " &fthe plugin files."
+        - ""
+        - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fʀᴇʟᴏᴀᴅ"
+    create:
+      slot: 31
+      material: LARGE_AMETHYST_BUD
+      name: '&#758CE3Create New Mine'
+      lore:
+        - ""
+        - "&#758CE3Information:"
+        - " &fClick here to create"
+        - " &fa new mine!"
+        - ""
+        - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fᴄʀᴇᴀᴛᴇ"
+    reset-all:
+      slot: 32
+      material: TARGET
+      name: '&#758CE3Reset Mines'
+      lore:
+        - ""
+        - "&#758CE3Information:"
+        - " &fClick here to reset"
+        - " &fall the active mines!"
+        - ""
+        - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fʀᴇꜱᴇᴛ"
+
+    back:
+      slot: 28
+      material: "ARROW"
+      name: "&#758CE3« Previous Page"
+      lore: [ ]
+    forward:
+      slot: 34
+      material: "ARROW"
+      name: "&#758CE3Next Page »"
+      lore: [ ]
+
+    decoration:
+      slot: [27, 29, 31, 33, 35]
+      material: GRAY_STAINED_GLASS_PANE
+      name: '&f'
+
+mine-editor:
+  title: "Mine — {mine}"
+  size: 36
+
+  items:
+    area-wand:
+      slot: 10
+      material: "MAP"
+      name: "&#758CE3Mine Selection Wand"
+
+    entrance-wand:
+      slot: 11
+      material: "BAMBOO_DOOR"
+      name: "&#758CE3Entrance Selection Wand"
+
+    set-reset-time:
+      slot: 12
+      material: "CLOCK"
+      name: "&#758CE3Set Reset Time"
+
+    set-permission:
+      slot: 13
+      material: "GLOW_BERRIES"
+      name: "&#758CE3Set Entrance Permission"
+
+    blocks:
+      slot: 14
+      material: "CHEST"
+      name: "&#758CE3Mine Blocks"
+
+    reset:
+      slot: 15
+      material: "TARGET"
+      name: "&#758CE3Reset Mine"
+
+    rename:
+      slot: 16
+      material: "NAME_TAG"
+      name: "&#758CE3Rename the Mine"
+
+    back:
+      slot: 31
+      material: "IRON_DOOR"
+      name: "&#758CE3↓ Main Menu ↓"
+    decoration:
+      slot: [27, 28, 29, 30, 32, 33, 34, 35]
+      material: GRAY_STAINED_GLASS_PANE
+      name: '&f'
+
+version: '1'

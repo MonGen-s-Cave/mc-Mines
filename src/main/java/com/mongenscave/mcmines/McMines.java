@@ -4,7 +4,9 @@ import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
 import com.mongenscave.mcmines.block.BlockPlatforms;
 import com.mongenscave.mcmines.config.Config;
+import com.mongenscave.mcmines.managers.PromptManager;
 import com.mongenscave.mcmines.managers.MineManager;
+import com.mongenscave.mcmines.managers.WandManager;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import com.mongenscave.mcmines.utils.RegisterUtils;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
@@ -23,11 +25,13 @@ import java.io.File;
 public final class McMines extends ZapperJavaPlugin {
     @Getter static McMines instance;
     @Getter TaskScheduler scheduler;
-    @Getter Config language;
-    @Getter Config hooks;
+    @Getter private Config language;
+    @Getter private Config hooks;
+    @Getter private Config guis;
     @Getter MineManager mineManager;
     Config config;
     @Getter private BlockPlatforms blockPlatforms;
+    @Getter private WandManager wandManager;
 
     @Override
     public void onLoad() {
@@ -43,7 +47,13 @@ public final class McMines extends ZapperJavaPlugin {
         blockPlatforms = new BlockPlatforms();
         mineManager = new MineManager();
 
+        wandManager = new WandManager();
+        getServer().getPluginManager().registerEvents(wandManager, this);
+
+        RegisterUtils.registerListeners();
         RegisterUtils.registerCommands();
+
+        PromptManager.init();
 
         new Metrics(this, 26903);
     }
@@ -74,6 +84,7 @@ public final class McMines extends ZapperJavaPlugin {
         config = loadConfig("config.yml", generalSettings, loaderSettings, updaterSettings);
         language = loadConfig("messages.yml", generalSettings, loaderSettings, updaterSettings);
         hooks = loadConfig("hooks.yml", generalSettings, loaderSettings, updaterSettings);
+        guis = loadConfig("guis.yml", generalSettings, loaderSettings, updaterSettings);
     }
 
     @NotNull

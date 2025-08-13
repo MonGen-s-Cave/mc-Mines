@@ -2,12 +2,15 @@ package com.mongenscave.mcmines.commands;
 
 import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.data.BlockData;
+import com.mongenscave.mcmines.data.SelectionMode;
+import com.mongenscave.mcmines.data.common.MenuController;
+import com.mongenscave.mcmines.gui.models.MineEditorMenu;
+import com.mongenscave.mcmines.gui.models.MineSelectorMenu;
 import com.mongenscave.mcmines.managers.MineManager;
 import com.mongenscave.mcmines.models.Mine;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +20,6 @@ import revxrsal.commands.annotation.Default;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
-import revxrsal.commands.orphan.OrphanCommand;
 
 import java.util.Set;
 
@@ -53,6 +55,8 @@ public class CommandMine {
     public void reload(@NotNull CommandSender sender) {
         plugin.getConfiguration().reload();
         plugin.getLanguage().reload();
+        plugin.getHooks().reload();
+        plugin.getGuis().reload();
         mineManager.loadMines();
         mineManager.resetAllMines();
 
@@ -274,10 +278,17 @@ public class CommandMine {
             return;
         }
 
-        mine.removeBlockData(material.toUpperCase());
-        mineManager.updateMine(mine);
+        final String storeKey;
+        try {
+            storeKey = McMines.getInstance().getBlockPlatforms().normalizeForStore(material);
+        } catch (Exception ex) {
+            sender.sendMessage(Component.text("Invalid material: " + material + " (" + ex.getMessage() + ")", NamedTextColor.RED));
+            return;
+        }
 
-        sender.sendMessage(Component.text("Removed " + material.toUpperCase() + " from mine '" + name + "'!", NamedTextColor.GREEN));
+        mine.removeBlockData(storeKey);
+        mineManager.updateMine(mine);
+        sender.sendMessage(Component.text("Removed " + storeKey + " from mine '" + name + "'!", NamedTextColor.GREEN));
     }
 
     @Subcommand("setpermission")
@@ -318,4 +329,48 @@ public class CommandMine {
 
         sender.sendMessage(Component.text("Reset time set to " + seconds + " seconds for mine '" + name + "'!", NamedTextColor.GREEN));
     }
+
+    @Subcommand("editor")
+    @CommandPermission("mcmines.edit")
+    public void openEditor(@NotNull Player player) {
+        new MineSelectorMenu(MenuController.getMenuUtils(player)).open();
+    }
+
+    @Subcommand("edit")
+    @CommandPermission("mcmines.edit")
+    public void openMineEditor(@NotNull Player player, @NotNull String name) {
+        Mine mine = mineManager.getMine(name);
+        if (mine == null) {
+            player.sendMessage(Component.text("Mine '" + name + "' not found!", NamedTextColor.RED));
+            return;
+        }
+        new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
+    }
+
+    @Subcommand("wand")
+    @CommandPermission("mcmines.wand")
+    public void wand(@NotNull org.bukkit.command.CommandSender sender,
+                     @NotNull String mineName,
+                     @NotNull String type) {
+        if (!(sender instanceof org.bukkit.entity.Player player)) {
+            sender.sendMessage(net.kyori.adventure.text.Component.text("Player-only."));
+            return;
+        }
+        Mine mine = McMines.getInstance().getMineManager().getMine(mineName);
+        if (mine == null) {
+            player.sendMessage(net.kyori.adventure.text.Component.text("Mine not found: " + mineName));
+            return;
+        }
+
+        SelectionMode mode;
+        if (type.equalsIgnoreCase("mine")) mode = SelectionMode.MINE_AREA;
+        else if (type.equalsIgnoreCase("entrance")) mode = SelectionMode.ENTRANCE_AREA;
+        else {
+            player.sendMessage(net.kyori.adventure.text.Component.text("Usage: /mine wand <mine> <mine|entrance>"));
+            return;
+        }
+
+        McMines.getInstance().getWandManager().startSession(player, mine, mode, false);
+    }
+
 }
