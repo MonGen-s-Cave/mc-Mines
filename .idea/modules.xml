@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.mongenscave.mc-Mines.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.mongenscave.mc-Mines.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mc-Mines.iml" filepath="$PROJECT_DIR$/mc-Mines.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mc-Mines.main.iml" filepath="$PROJECT_DIR$/.idea/modules/mc-Mines.main.iml" />
     </modules>
   </component>

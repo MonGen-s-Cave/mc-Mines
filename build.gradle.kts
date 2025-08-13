@@ -15,12 +15,14 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://repo.nexomc.com/releases")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.36")
     compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("com.nexomc:nexo:1.8.0")
 
     implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.12") {
         exclude(module = "lamp.common")
@@ -52,5 +54,4 @@ zapper {
 
     relocate("org.bstats", "bstats")
     relocate("com.github.Anon8281.universalScheduler", "universalScheduler")
-    relocate("dev.dejvokep.boostedyaml", "boostedyaml")
 }

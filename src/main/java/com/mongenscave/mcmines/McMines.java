@@ -2,10 +2,12 @@ package com.mongenscave.mcmines;
 
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
+import com.mongenscave.mcmines.block.BlockPlatforms;
 import com.mongenscave.mcmines.config.Config;
 import com.mongenscave.mcmines.managers.MineManager;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import com.mongenscave.mcmines.utils.RegisterUtils;
+import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
@@ -22,8 +24,10 @@ public final class McMines extends ZapperJavaPlugin {
     @Getter static McMines instance;
     @Getter TaskScheduler scheduler;
     @Getter Config language;
+    @Getter Config hooks;
     @Getter MineManager mineManager;
     Config config;
+    @Getter private BlockPlatforms blockPlatforms;
 
     @Override
     public void onLoad() {
@@ -33,17 +37,15 @@ public final class McMines extends ZapperJavaPlugin {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
         initializeComponents();
+        LoggerUtils.printStartup();
 
+        blockPlatforms = new BlockPlatforms();
         mineManager = new MineManager();
 
-        //PlaceholderAPI.registerHook();
         RegisterUtils.registerCommands();
 
         new Metrics(this, 26903);
-
-        LoggerUtils.printStartup();
     }
 
     @Override
@@ -66,10 +68,12 @@ public final class McMines extends ZapperJavaPlugin {
 
         final UpdaterSettings updaterSettings = UpdaterSettings.builder()
                 .setKeepAll(true)
+                .setVersioning(new BasicVersioning("version"))
                 .build();
 
         config = loadConfig("config.yml", generalSettings, loaderSettings, updaterSettings);
         language = loadConfig("messages.yml", generalSettings, loaderSettings, updaterSettings);
+        hooks = loadConfig("hooks.yml", generalSettings, loaderSettings, updaterSettings);
     }
 
     @NotNull

@@ -2,6 +2,7 @@ package com.mongenscave.mcmines.managers;
 
 import com.github.Anon8281.universalScheduler.scheduling.tasks.MyScheduledTask;
 import com.mongenscave.mcmines.McMines;
+import com.mongenscave.mcmines.block.BlockPlatforms;
 import com.mongenscave.mcmines.config.Config;
 import com.mongenscave.mcmines.data.BlockData;
 import com.mongenscave.mcmines.models.Mine;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class MineManager {
     @Getter private static MineManager instance;
@@ -171,56 +171,57 @@ public class MineManager {
             return;
         }
 
-        int totalChance = blockDataList.stream().mapToInt(BlockData::chance).sum();
-        if (totalChance <= 0) {
-            LoggerUtils.error("Mine '" + mine.getName() + "' has invalid total chance: " + totalChance);
+        var platforms = McMines.getInstance().getBlockPlatforms();
+        record Weighted(BlockPlatforms.Placement p, int w) {}
+        List<Weighted> weighted = new java.util.ArrayList<>();
+        int total = 0;
+
+        for (BlockData bd : blockDataList) {
+            try {
+                if (bd.chance() > 0) {
+                    var placement = platforms.resolveForReset(bd.material());
+                    weighted.add(new Weighted(placement, bd.chance()));
+                    total += bd.chance();
+                }
+            } catch (Exception ex) {
+                LoggerUtils.error("Skipping invalid block: " + bd.material() + " (" + ex.getMessage() + ")");
+            }
+        }
+
+        if (total <= 0 || weighted.isEmpty()) {
+            LoggerUtils.error("Mine '" + mine.getName() + "' has invalid total chance: " + total);
             return;
         }
 
+        final int n = weighted.size();
+        final int[] prefix = new int[n];
+        for (int i = 0, sum = 0; i < n; i++) { sum += weighted.get(i).w; prefix[i] = sum; }
+
+        var world = pos1.getWorld();
+        var rng = java.util.concurrent.ThreadLocalRandom.current();
+        final Location loc = new Location(world, 0, 0, 0);
         int blocksReset = 0;
 
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    Location blockLocation = new Location(pos1.getWorld(), x, y, z);
-                    Material material = selectRandomMaterial(blockDataList, totalChance);
+                    int r = rng.nextInt(total);
+                    int idx = java.util.Arrays.binarySearch(prefix, r + 1);
+                    if (idx < 0) idx = -idx - 1;
 
-                    if (material != null) {
-                        blockLocation.getBlock().setType(material);
+                    loc.set(x, y, z);
+                    try {
+                        weighted.get(idx).p.placeAt(loc);
                         blocksReset++;
+                    } catch (Throwable t) {
+                        LoggerUtils.error("Failed to place block at " + x + "," + y + "," + z + ": " + t.getMessage());
                     }
                 }
             }
         }
 
         LoggerUtils.info("Reset mine '" + mine.getName() + "' - " + blocksReset + " blocks changed");
-
         startResetTask(mine);
-    }
-
-    @Nullable
-    private Material selectRandomMaterial(@NotNull List<BlockData> blockDataList, int totalChance) {
-        int randomValue = ThreadLocalRandom.current().nextInt(totalChance);
-        int currentChance = 0;
-
-        for (BlockData blockData : blockDataList) {
-            currentChance += blockData.chance();
-            if (randomValue < currentChance) {
-                try {
-                    return Material.valueOf(blockData.material().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    LoggerUtils.error("Invalid material: " + blockData.material());
-                    return null;
-                }
-            }
-        }
-
-        try {
-            return Material.valueOf(blockDataList.getFirst().material().toUpperCase());
-        } catch (Exception e) {
-            LoggerUtils.error("Failed to select material from block data list");
-            return null;
-        }
     }
 
     private void startResetTask(@NotNull Mine mine) {

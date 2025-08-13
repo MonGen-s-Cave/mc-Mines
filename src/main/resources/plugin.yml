@@ -2,5 +2,8 @@ name: mc-Mines
 version: '1.0.0'
 main: com.mongenscave.mcmines.McMines
 api-version: '1.18'
-authors: [ coma112 ]
+authors: [ coma112, kxtsoo ]
 folia-supported: true
+
+softdepend:
+  - Nexo

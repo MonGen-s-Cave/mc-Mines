@@ -235,33 +235,35 @@ public class CommandMine {
 
     @Subcommand("addblock")
     @CommandPermission("mcmines.edit")
-    public void addBlock(@NotNull CommandSender sender, @NotNull String name, @NotNull String material, int chance) {
+    public void addBlock(@NotNull CommandSender sender,
+                         @NotNull String name,
+                         @NotNull String material,
+                         int chance) {
         Mine mine = mineManager.getMine(name);
         if (mine == null) {
             sender.sendMessage(Component.text("Mine '" + name + "' not found!", NamedTextColor.RED));
             return;
         }
-
-        // Validate material
-        try {
-            Material.valueOf(material.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            sender.sendMessage(Component.text("Invalid material: " + material, NamedTextColor.RED));
-            return;
-        }
-
         if (chance <= 0 || chance > 100) {
             sender.sendMessage(Component.text("Chance must be between 1 and 100!", NamedTextColor.RED));
             return;
         }
 
-        // Remove existing block data with same material
-        mine.removeBlockData(material.toUpperCase());
-        mine.addBlockData(material.toUpperCase(), chance);
+        final String storeKey;
+        try {
+            storeKey = McMines.getInstance().getBlockPlatforms().normalizeForStore(material);
+        } catch (Exception ex) {
+            sender.sendMessage(Component.text("Invalid material: " + material + " (" + ex.getMessage() + ")", NamedTextColor.RED));
+            return;
+        }
+
+        mine.removeBlockData(storeKey);
+        mine.addBlockData(storeKey, chance);
         mineManager.updateMine(mine);
 
-        sender.sendMessage(Component.text("Added " + material.toUpperCase() + " with " + chance + "% chance to mine '" + name + "'!", NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("Added " + storeKey + " with " + chance + "% chance to mine '" + name + "'!", NamedTextColor.GREEN));
     }
+
 
     @Subcommand("removeblock")
     @CommandPermission("mcmines.edit")
