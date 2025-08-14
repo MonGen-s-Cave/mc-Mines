@@ -93,9 +93,8 @@ public final class MineEditorMenu extends Menu {
                 PromptManager.request(menuController.owner(), null, (player, input) -> {
                     try {
                         int seconds = Integer.parseInt(input.trim());
-                        if (seconds <= 0 || seconds > 86400) {
-                            player.sendMessage(MessageKeys.PROMPT_SET_RESET_RANGE.getMessage());
-                        } else {
+                        if (seconds <= 0 || seconds > 86400) player.sendMessage(MessageKeys.PROMPT_SET_RESET_RANGE.getMessage());
+                        else {
                             mine.setResetAfter(seconds);
                             mineManager.updateMine(mine);
                             player.sendMessage(MessageKeys.PROMPT_SET_RESET_SUCCESS.with("seconds", seconds));

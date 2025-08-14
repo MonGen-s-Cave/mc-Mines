@@ -25,12 +25,12 @@ public final class PromptManager implements Listener {
         PROMPTS.put(p.getUniqueId(), onReply);
     }
 
-    public static boolean has(Player p) { return PROMPTS.containsKey(p.getUniqueId()); }
-    public static void clear(Player p) { PROMPTS.remove(p.getUniqueId()); }
+    public static boolean has(@NotNull Player p) { return PROMPTS.containsKey(p.getUniqueId()); }
+    public static void clear(@NotNull Player p) { PROMPTS.remove(p.getUniqueId()); }
 
     @EventHandler
     @SuppressWarnings("all")
-    public void onChat(AsyncPlayerChatEvent e) {
+    public void onChat(@NotNull AsyncPlayerChatEvent e) {
         var handler = PROMPTS.remove(e.getPlayer().getUniqueId());
         if (handler != null) {
             e.setCancelled(true);

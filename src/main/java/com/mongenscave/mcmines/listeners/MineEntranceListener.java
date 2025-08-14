@@ -31,6 +31,7 @@ public final class MineEntranceListener implements Listener {
                     event.setTo(event.getFrom());
                     player.sendMessage("§cNincs jogosultságod belépni ebbe a bányába! (§7" + requiredPerm + "§c)");
                 }
+
                 break;
             }
         }

@@ -47,9 +47,7 @@ public final class MineSelectorMenu extends PaginatedMenu {
                     if (page > 0) {
                         page--;
                         setMenuItems();
-                    } else {
-                        menuController.owner().closeInventory();
-                    }
+                    } else menuController.owner().closeInventory();
                 }
 
                 case MINE_SELECTOR_FORWARD -> {
@@ -137,11 +135,10 @@ public final class MineSelectorMenu extends PaginatedMenu {
             ClickType clickType = event.getClick();
             if (clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP) {
                 boolean deleted = manager.deleteMine(mineName);
-                if (deleted) {
-                    menuController.owner().sendMessage(Component.text("Bánya törölve: " + mineName));
-                } else {
-                    menuController.owner().sendMessage(Component.text("A bánya nem található: " + mineName));
-                }
+
+                if (deleted) menuController.owner().sendMessage(Component.text("Bánya törölve: " + mineName));
+                else menuController.owner().sendMessage(Component.text("A bánya nem található: " + mineName));
+
                 page = 0;
                 open();
                 return;
@@ -211,6 +208,7 @@ public final class MineSelectorMenu extends PaginatedMenu {
         slotToItemKeyMap.put(slot, itemKey);
     }
 
+    @NotNull
     @Override public String getMenuName() {
         return MenuKeys.MENU_MINE_SELECTOR_TITLE.getString();
     }
@@ -224,6 +222,7 @@ public final class MineSelectorMenu extends PaginatedMenu {
     }
 
     private static final class MineItemFactory {
+        @NotNull
         static ItemStack buildMineIcon(String name, Mine mine) {
             var guis = McMines.getInstance().getGuis();
             var template = guis.getSection("mine-selector.mine-item");
@@ -265,7 +264,8 @@ public final class MineSelectorMenu extends PaginatedMenu {
             return is;
         }
 
-        private static String apply(String s, String name, Mine mine) {
+        @NotNull
+        private static String apply(@NotNull String s, String name, Mine mine) {
             String reset = (mine != null ? String.valueOf(mine.getResetAfter()) : "?");
             String area  = String.valueOf(mine != null && mine.isValidMineArea());
             String count = String.valueOf(mine != null ? mine.getBlockDataList().size() : 0);

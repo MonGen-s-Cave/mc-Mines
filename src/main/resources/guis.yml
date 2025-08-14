@@ -11,8 +11,9 @@ mine-selector:
       - " &8› &7Area valid: &f{area_valid}"
       - " &8› &7Blocks: &f{blocks_count}"
       - ""
-      - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fᴇᴅɪᴛ ᴛʜᴇ ᴍɪɴᴇ"
-      - "&#758CE3ǫ-ᴋᴇʏ: &fᴅᴇʟᴇᴛᴇ ᴛʜᴇ ᴍɪɴᴇ"
+      - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fᴇᴅɪᴛ ᴛʜᴇ ᴍɪɴᴇ"
+      - "&#758CE3ǫ ᴋᴇʏ: &fᴅᴇʟᴇᴛᴇ ᴛʜᴇ ᴍɪɴᴇ"
+      - ""
 
   items:
     reload:
@@ -25,7 +26,8 @@ mine-selector:
         - " &fClick here to reload"
         - " &fthe plugin files."
         - ""
-        - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fʀᴇʟᴏᴀᴅ"
+        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fʀᴇʟᴏᴀᴅ"
+        - ""
     create:
       slot: 31
       material: LARGE_AMETHYST_BUD
@@ -36,7 +38,8 @@ mine-selector:
         - " &fClick here to create"
         - " &fa new mine!"
         - ""
-        - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fᴄʀᴇᴀᴛᴇ"
+        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fᴄʀᴇᴀᴛᴇ"
+        - ""
     reset-all:
       slot: 32
       material: TARGET
@@ -47,7 +50,8 @@ mine-selector:
         - " &fClick here to reset"
         - " &fall the active mines!"
         - ""
-        - "&#758CE3ʟᴇꜰᴛ-ᴄʟɪᴄᴋ: &fʀᴇꜱᴇᴛ"
+        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fʀᴇꜱᴇᴛ"
+        - ""
 
     back:
       slot: 28

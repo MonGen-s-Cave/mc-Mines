@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MineManager {
     @Getter private static MineManager instance;
@@ -104,6 +105,7 @@ public class MineManager {
 
     public boolean deleteMine(@NotNull String name) {
         Mine mine = mines.remove(name);
+
         if (mine != null) {
             MyScheduledTask task = resetTasks.remove(name);
             if (task != null) task.cancel();
@@ -254,7 +256,7 @@ public class MineManager {
         for (int i = 0, sum = 0; i < n; i++) { sum += weighted.get(i).w; prefix[i] = sum; }
 
         var world = pos1.getWorld();
-        var rng = java.util.concurrent.ThreadLocalRandom.current();
+        var rng = ThreadLocalRandom.current();
         final Location loc = new Location(world, 0, 0, 0);
         int blocksReset = 0;
 

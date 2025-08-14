@@ -43,8 +43,8 @@ public class Mine {
 
             blockDataMaps.add(blockMap);
         }
-        section.put("block-data", blockDataMaps);
 
+        section.put("block-data", blockDataMaps);
         section.put("reset-after", resetAfter);
 
         if (mineAreaPos1 != null) section.put("mine-area.pos1", LocationUtils.serialize(mineAreaPos1));

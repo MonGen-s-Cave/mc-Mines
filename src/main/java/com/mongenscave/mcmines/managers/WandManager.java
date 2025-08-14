@@ -28,6 +28,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,25 +39,20 @@ import java.util.UUID;
 
 @SuppressWarnings("all")
 public final class WandManager implements Listener {
-
     public static final String WAND_PDC_KEY = "selector_wand";
-
     private final McMines plugin = McMines.getInstance();
     private final NamespacedKey wandKey = new NamespacedKey(plugin, WAND_PDC_KEY);
     private final NamespacedKey ownerKey = new NamespacedKey(plugin, "selector_owner");
-
     private final MineManager mineManager = plugin.getMineManager();
-
     private final Map<UUID, Session> sessions = new HashMap<>();
     private final Map<UUID, MyScheduledTask> previewTasks = new HashMap<>();
 
-    private record Session(UUID playerId,
-                           String mineName,
-                           SelectionMode mode,
-                           boolean reopenEditor,
-                           @Nullable Location pos1,
-                           @Nullable Location pos2) {
+    private record Session(UUID playerId, String mineName, SelectionMode mode, boolean reopenEditor, @Nullable Location pos1, @Nullable Location pos2) {
+        @NotNull
+        @Contract("_ -> new")
         Session withPos1(Location l) { return new Session(playerId, mineName, mode, reopenEditor, l, pos2); }
+        @NotNull
+        @Contract("_ -> new")
         Session withPos2(Location l) { return new Session(playerId, mineName, mode, reopenEditor, pos1, l); }
     }
 
@@ -129,7 +125,7 @@ public final class WandManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) return;
         Player player = event.getPlayer();
         if (!isWandOfPlayer(event.getItem(), player)) return;
@@ -171,7 +167,7 @@ public final class WandManager implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onWandDrop(PlayerDropItemEvent event) {
+    public void onWandDrop(@NotNull PlayerDropItemEvent event) {
         if (isWandOfPlayer(event.getItemDrop().getItemStack(), event.getPlayer())) {
             event.setCancelled(true);
             cancelSession(event.getPlayer(), true);
@@ -179,7 +175,7 @@ public final class WandManager implements Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onQuit(@NotNull PlayerQuitEvent event) {
         cancelSession(event.getPlayer(), false);
     }
 
@@ -187,16 +183,21 @@ public final class WandManager implements Listener {
         if (previewTasks.containsKey(playerId)) return;
         MyScheduledTask task = plugin.getScheduler().runTaskTimer(() -> {
             Session s = sessions.get(playerId);
+
             if (s == null) {
                 stopPreview(playerId);
                 return;
             }
+
             if (s.pos1 == null || s.pos2 == null) return;
+
             Player p = plugin.getServer().getPlayer(playerId);
+
             if (p == null || !p.isOnline()) {
                 stopPreview(playerId);
                 return;
             }
+
             drawCuboidFrameFor(p, s.pos1, s.pos2, 0.5);
         }, 0L, 5L);
         previewTasks.put(playerId, task);

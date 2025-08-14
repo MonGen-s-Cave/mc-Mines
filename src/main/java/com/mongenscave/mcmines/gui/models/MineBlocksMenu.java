@@ -199,7 +199,6 @@ public final class MineBlocksMenu extends Menu {
                 return material != null ? material : Material.STONE;
             }
 
-            // Custom plugin támogatás
             if (key.startsWith("nexo:")) return Material.NETHER_STAR;
             if (key.startsWith("oraxen:")) return Material.ENDER_EYE;
             if (key.startsWith("itemsadder:")) return Material.NAME_TAG;
