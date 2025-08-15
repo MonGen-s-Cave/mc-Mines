@@ -49,4 +49,20 @@ messages:
         cleared: "%prefix% &aBelépési permission törölve."
         set: "%prefix% &aBelépési permission beállítva: &f{permission}"
 
+      blocks:
+        add:
+          id: "%prefix% &7Type the block identifier &8(e.g. &fstone&8, &fnexo:amber_block&8)&7:"
+          invalid: "%prefix% &cInvalid block: &f{input} &8(&7{error}&8)"
+          chance: "%prefix% &7Type chance % &8(1..100)&7 for: &f{key}"
+          chance-invalid: "%prefix% &cInvalid chance! Please enter a number."
+          chance-range: "%prefix% &cChance must be between &f1 &cand &f100&c."
+        removed: "%prefix% &aRemoved: &f{key}"
+        added: "%prefix% &aAdded: &f{key} &7- &a{chance}%"
+
+  entrance:
+    no-permission: "%prefix% &cYou don't have permission to enter this zone. &4({permission})"
+
+  actionbar:
+    mine-status: "&6{mine} &7| Reset: &e{reset_seconds}s &7| Blocks: &e{blocks_count} &7| Volume: &e{volume}"
+
 version: '1'

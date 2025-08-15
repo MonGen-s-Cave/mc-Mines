@@ -6,10 +6,12 @@ import com.mongenscave.mcmines.block.key.BlockKey;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class BlockPlatforms {
@@ -19,11 +21,11 @@ public final class BlockPlatforms {
         String storeKey();
     }
 
-    private final Map<String, BlockPlatform> platforms = new ConcurrentHashMap<>();
+    private static final Map<String, BlockPlatform> platforms = new ConcurrentHashMap<>();
 
     public BlockPlatforms() {
         if (McMines.getInstance().getHooks().getBoolean("hooks.register.Nexo")) {
-            LoggerUtils.info("\u001B[32m [Hook] Nexo successfully enabled.\u001B[0m");
+            LoggerUtils.info("\u001B[32m   [Hook] Nexo successfully enabled.\u001B[0m");
             register(new NexoPlatform());
         }
     }
@@ -50,7 +52,7 @@ public final class BlockPlatforms {
         }
 
         BlockPlatform p = platforms.get(key.namespace());
-        if (p == null || p.isEnabled()) throw new IllegalStateException("Platform not available: " + key.namespace());
+        if (p == null || !p.isEnabled()) throw new IllegalStateException("Platform not available: " + key.namespace());
 
         return new Placement() {
             @Override
@@ -70,7 +72,7 @@ public final class BlockPlatforms {
         if (key.vanilla()) matchMaterialFast(key.raw());
         else {
             BlockPlatform p = platforms.get(key.namespace());
-            if (p == null || p.isEnabled()) throw new IllegalStateException("Platform not available: " + key.namespace());
+            if (p == null || !p.isEnabled()) throw new IllegalStateException("Platform not available: " + key.namespace());
         }
 
         return key.storeKey();
@@ -79,10 +81,26 @@ public final class BlockPlatforms {
     @NotNull
     private static Material matchMaterialFast(String name) {
         Material m = Material.matchMaterial(name);
-
         if (m == null) m = Material.matchMaterial(name.toUpperCase(Locale.ROOT));
         if (m == null) throw new IllegalArgumentException("Unknown vanilla material: " + name);
-
         return m;
+    }
+
+    public Optional<ItemStack> iconFor(String rawKey) {
+        BlockKey key = BlockKey.parse(rawKey);
+
+        if (key.vanilla()) {
+            Material mat = matchMaterialFast(key.raw());
+            return Optional.of(new ItemStack(mat));
+        }
+
+        BlockPlatform p = platforms.get(key.namespace());
+        if (p == null || !p.isEnabled()) return Optional.empty();
+
+        try {
+            return p.icon(key.id());
+        } catch (Throwable t) {
+            return Optional.empty();
+        }
     }
 }

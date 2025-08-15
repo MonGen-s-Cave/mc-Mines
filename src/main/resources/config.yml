@@ -1,2 +1,3 @@
-
+visual-reset:
+  enabled: true
 version: '1'

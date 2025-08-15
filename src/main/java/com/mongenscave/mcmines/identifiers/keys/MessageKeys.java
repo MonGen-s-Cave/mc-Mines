@@ -33,6 +33,14 @@ public enum MessageKeys {
     PROMPT_SET_PERMISSION_CLEARED("messages.prompt.editor.set-permission.cleared"),
     PROMPT_SET_PERMISSION_SET("messages.prompt.editor.set-permission.set"),
 
+    PROMPT_BLOCK_ADD_ID("messages.prompt.editor.blocks.add.id"),
+    PROMPT_BLOCK_ADD_INVALID("messages.prompt.editor.blocks.add.invalid"),
+    PROMPT_BLOCK_ADD_CHANCE("messages.prompt.editor.blocks.add.chance"),
+    PROMPT_BLOCK_ADD_CHANCE_INVALID("messages.prompt.editor.blocks.add.chance-invalid"),
+    PROMPT_BLOCK_ADD_CHANCE_RANGE("messages.prompt.editor.blocks.add.chance-range"),
+    BLOCKS_REMOVED("messages.prompt.editor.blocks.removed"),
+    BLOCKS_ADDED("messages.prompt.editor.blocks.added"),
+
     WAND_START_MINE("messages.wand.start-mine"),
     WAND_START_ENTRANCE("messages.wand.start-entrance"),
     WAND_POS1_SET("messages.wand.pos1"),
@@ -47,7 +55,10 @@ public enum MessageKeys {
     WAND_ITEM_LORE_2("messages.wand.item.lore2"),
     WAND_HINT_SAVE("messages.wand.hint-save"),
     WAND_NEED_BOTH("messages.wand.need-both"),
-    WAND_ITEM_LORE_3("messages.wand.item.lore3");
+    WAND_ITEM_LORE_3("messages.wand.item.lore3"),
+
+    ENTRANCE_NO_PERMISSION("messages.entrance.no-permission"),
+    ACTIONBAR_MINE_STATUS("messages.actionbar.mine-status");
 
     private static final Config language = McMines.getInstance().getLanguage();
     private final String path;

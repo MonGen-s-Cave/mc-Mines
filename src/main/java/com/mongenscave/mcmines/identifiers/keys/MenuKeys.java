@@ -12,7 +12,10 @@ public enum MenuKeys {
     MENU_MINE_SELECTOR_SIZE("mine-selector.size"),
 
     MENU_MINE_EDITOR_TITLE("mine-editor.title"),
-    MENU_MINE_EDITOR_SIZE("mine-editor.size");
+    MENU_MINE_EDITOR_SIZE("mine-editor.size"),
+
+    MENU_MINE_BLOCKS_TITLE("mine-blocks.title"),
+    MENU_MINE_BLOCKS_SIZE("mine-blocks.size");
 
     private static final Config config = McMines.getInstance().getGuis();
     private final String path;
