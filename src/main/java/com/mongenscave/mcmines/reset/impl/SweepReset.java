@@ -1,11 +1,13 @@
-package com.mongenscave.mcmines.reset.model;
+package com.mongenscave.mcmines.reset.impl;
 
 import com.github.Anon8281.universalScheduler.scheduling.tasks.MyScheduledTask;
 import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.block.BlockPlatforms;
 import com.mongenscave.mcmines.data.BlockData;
+import com.mongenscave.mcmines.data.ResetData;
+import com.mongenscave.mcmines.identifiers.ResetDirection;
 import com.mongenscave.mcmines.models.Mine;
-import com.mongenscave.mcmines.reset.ResetManager;
+import com.mongenscave.mcmines.reset.Reset;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,14 +18,13 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-public final class DefaultSweepVisualReset extends ResetManager {
-
-    public DefaultSweepVisualReset(@NotNull McMines plugin, @NotNull Consumer<Mine> onFinish) {
+public final class SweepReset extends Reset {
+    public SweepReset(@NotNull McMines plugin, @NotNull Consumer<Mine> onFinish) {
         super(plugin, onFinish);
     }
 
     @Override
-    protected void doResetVisual(@NotNull Mine mine, @NotNull ResetSettings settings) {
+    protected void doResetVisual(@NotNull Mine mine, @NotNull ResetData settings) {
         Location a = mine.getMineAreaPos1();
         Location b = mine.getMineAreaPos2();
         if (a == null || b == null) return;
@@ -133,7 +134,7 @@ public final class DefaultSweepVisualReset extends ResetManager {
         private int x, y, z;
         private boolean hasNext;
 
-        AxisIterator(int minX, int maxX, int minY, int maxY, int minZ, int maxZ, ResetDirection dir) {
+        AxisIterator(int minX, int maxX, int minY, int maxY, int minZ, int maxZ, @NotNull ResetDirection dir) {
             this.minX = minX; this.maxX = maxX;
             this.minY = minY; this.maxY = maxY;
             this.minZ = minZ; this.maxZ = maxZ;

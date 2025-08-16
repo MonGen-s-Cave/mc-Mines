@@ -1,9 +1,10 @@
-package com.mongenscave.mcmines.reset.model;
+package com.mongenscave.mcmines.data;
 
+import com.mongenscave.mcmines.identifiers.ResetDirection;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
-public record ResetSettings(
+public record ResetData(
         ResetDirection direction,
         int blocksPerTick,
         int tickPeriod,
@@ -19,8 +20,12 @@ public record ResetSettings(
             double speed
     ) {
         public static Particle parse(String name) {
-            try { return Particle.valueOf(String.valueOf(name).toUpperCase()); }
-            catch (Exception ignored) { return Particle.SMOKE; }
+            try {
+                return Particle.valueOf(String.valueOf(name).toUpperCase());
+            }
+            catch (Exception ignored) {
+                return Particle.SMOKE;
+            }
         }
     }
 
@@ -32,8 +37,12 @@ public record ResetSettings(
             int everyPlacement
     ) {
         public static Sound parse(String name) {
-            try { return Sound.valueOf(String.valueOf(name).toUpperCase()); }
-            catch (Exception ignored) { return Sound.BLOCK_COPPER_BULB_PLACE; }
+            try {
+                return Sound.valueOf(String.valueOf(name).toUpperCase());
+            }
+            catch (Exception ignored) {
+                return Sound.BLOCK_COPPER_BULB_PLACE;
+            }
         }
     }
 }

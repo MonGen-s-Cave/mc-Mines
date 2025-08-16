@@ -6,8 +6,9 @@ import com.mongenscave.mcmines.block.BlockPlatforms;
 import com.mongenscave.mcmines.config.Config;
 import com.mongenscave.mcmines.data.BlockData;
 import com.mongenscave.mcmines.models.Mine;
-import com.mongenscave.mcmines.reset.ResetManager;
-import com.mongenscave.mcmines.reset.model.DefaultSweepVisualReset;
+import com.mongenscave.mcmines.reset.Reset;
+import com.mongenscave.mcmines.reset.impl.SweepReset;
+import com.mongenscave.mcmines.reset.impl.WaveReset;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
@@ -30,7 +31,6 @@ public class MineManager {
 
     private final ConcurrentHashMap<String, Mine> mines = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, MyScheduledTask> resetTasks = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<String, Long> resetDueAtMillis = new ConcurrentHashMap<>();
 
     private static final class CachedPercent {
@@ -43,14 +43,22 @@ public class MineManager {
     private static final McMines plugin = McMines.getInstance();
     private Config minesConfig;
 
-    private final ResetManager visualResetter =
-            new DefaultSweepVisualReset(
-                    McMines.getInstance(),
-                    mine -> { fillCache.remove(mine.getName()); startResetTask(mine); }
-            );
+    private final Reset sweepVisualResetter;
+    private final Reset waveVisualResetter;
 
     public MineManager() {
         instance = this;
+
+        this.sweepVisualResetter = new SweepReset(
+                McMines.getInstance(),
+                mine -> { fillCache.remove(mine.getName()); startResetTask(mine); }
+        );
+
+        this.waveVisualResetter = new WaveReset(
+                McMines.getInstance(),
+                mine -> { fillCache.remove(mine.getName()); startResetTask(mine); }
+        );
+
         initializeConfig();
         loadMines();
     }
@@ -137,7 +145,11 @@ public class MineManager {
             if (task != null) task.cancel();
             resetDueAtMillis.remove(name);
             fillCache.remove(name);
-            visualResetter.cancel(name);
+
+            // Cancel both visual resetters
+            sweepVisualResetter.cancel(name);
+            waveVisualResetter.cancel(name);
+
             saveMines();
             LoggerUtils.info("Deleted mine: " + name);
             return true;
@@ -162,7 +174,9 @@ public class MineManager {
 
         Mine renamed = getRenamed(mine, newName);
 
-        visualResetter.cancel(oldName);
+        // Cancel both visual resetters for old name
+        sweepVisualResetter.cancel(oldName);
+        waveVisualResetter.cancel(oldName);
 
         MyScheduledTask t = resetTasks.remove(oldName);
         if (t != null) t.cancel();
@@ -195,6 +209,24 @@ public class MineManager {
         renamed.setEntranceAreaPos1(mine.getEntranceAreaPos1());
         renamed.setEntranceAreaPos2(mine.getEntranceAreaPos2());
         renamed.setEntrancePermission(mine.getEntrancePermission());
+
+        // Copy reset settings
+        renamed.setVisualResetEnabled(mine.isVisualResetEnabled());
+        renamed.setResetType(mine.getResetType());
+        renamed.setResetDirection(mine.getResetDirection());
+        renamed.setBlocksPerTick(mine.getBlocksPerTick());
+        renamed.setTickPeriod(mine.getTickPeriod());
+        renamed.setParticleType(mine.getParticleType());
+        renamed.setParticleCount(mine.getParticleCount());
+        renamed.setParticleOffsetX(mine.getParticleOffsetX());
+        renamed.setParticleOffsetY(mine.getParticleOffsetY());
+        renamed.setParticleOffsetZ(mine.getParticleOffsetZ());
+        renamed.setParticleSpeed(mine.getParticleSpeed());
+        renamed.setSoundType(mine.getSoundType());
+        renamed.setSoundVolume(mine.getSoundVolume());
+        renamed.setSoundPitchStart(mine.getSoundPitchStart());
+        renamed.setSoundPitchEnd(mine.getSoundPitchEnd());
+        renamed.setSoundEveryPlacement(mine.getSoundEveryPlacement());
 
         for (BlockData bd : new ArrayList<>(mine.getBlockDataList())) {
             renamed.addBlockData(bd.material(), bd.chance());
@@ -232,8 +264,9 @@ public class MineManager {
             return;
         }
 
-        if (visualResetter.isEnabled()) {
-            visualResetter.resetVisual(mine);
+        if (mine.isVisualResetEnabled()) {
+            Reset resetter = getResetManager(mine);
+            resetter.resetVisual(mine);
             return;
         }
 
@@ -304,6 +337,13 @@ public class MineManager {
         startResetTask(mine);
     }
 
+    private Reset getResetManager(@NotNull Mine mine) {
+        return switch (mine.getResetType()) {
+            case SWEEP -> sweepVisualResetter;
+            case WAVE -> waveVisualResetter;
+        };
+    }
+
     private void startResetTask(@NotNull Mine mine) {
         MyScheduledTask existingTask = resetTasks.remove(mine.getName());
         if (existingTask != null) existingTask.cancel();
@@ -340,7 +380,8 @@ public class MineManager {
         resetDueAtMillis.clear();
         fillCache.clear();
 
-        visualResetter.shutdown();
+        sweepVisualResetter.shutdown();
+        waveVisualResetter.shutdown();
         saveMines();
         LoggerUtils.info("Mine manager shutdown complete");
     }
