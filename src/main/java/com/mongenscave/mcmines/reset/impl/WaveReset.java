@@ -171,20 +171,16 @@ public class WaveReset extends Reset {
 
         @Override
         public int compare(Location a, Location b) {
-            double priorityA = calculateWavePrioirty(a);
-            double priorityB = calculateWavePrioirty(b);
+            double priorityA = calculateWavePriority(a);
+            double priorityB = calculateWavePriority(b);
 
             return Double.compare(priorityA, priorityB);
         }
 
-        private double calculateWavePrioirty(@NotNull Location location) {
+        private double calculateWavePriority(@NotNull Location location) {
             double x = location.getX();
             double y = location.getY();
             double z = location.getZ();
-
-            // amp = 2.0
-            // freq = 0.5
-            // speed = 1.0
 
             double dx = x - centerX;
             double dy = y - centerY;

@@ -90,11 +90,9 @@ public final class WandManager implements Listener {
         wand.setItemMeta(meta);
 
         PlayerInventory inv = player.getInventory();
-        if (inv.firstEmpty() != -1) {
-            inv.addItem(wand);
-        } else if (inv.getItemInMainHand().getType() == Material.AIR) {
-            inv.setItemInMainHand(wand);
-        } else {
+        if (inv.firstEmpty() != -1) inv.addItem(wand);
+        else if (inv.getItemInMainHand().getType() == Material.AIR) inv.setItemInMainHand(wand);
+        else {
             player.sendMessage(MessageKeys.WAND_NO_SPACE.getMessage());
             sessions.remove(player.getUniqueId());
         }
@@ -102,6 +100,7 @@ public final class WandManager implements Listener {
 
     private void removeWand(@NotNull Player player) {
         PlayerInventory inv = player.getInventory();
+
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack it = inv.getItem(i);
             if (isWandOfPlayer(it, player)) inv.clear(i);

@@ -10,6 +10,7 @@ import com.mongenscave.mcmines.reset.Reset;
 import com.mongenscave.mcmines.reset.impl.SweepReset;
 import com.mongenscave.mcmines.reset.impl.WaveReset;
 import com.mongenscave.mcmines.utils.LoggerUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
@@ -22,7 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -65,16 +70,28 @@ public class MineManager {
 
     private void initializeConfig() {
         try {
+            final GeneralSettings generalSettings = GeneralSettings.builder()
+                    .setUseDefaults(false)
+                    .build();
+
+            final LoaderSettings loaderSettings = LoaderSettings.builder()
+                    .setAutoUpdate(true)
+                    .build();
+
+            final UpdaterSettings updaterSettings = UpdaterSettings.builder()
+                    .setKeepAll(true)
+                    .build();
+
             minesConfig = new Config(
                     new File(plugin.getDataFolder(), "mines.yml"),
                     plugin.getResource("mines.yml"),
-                    GeneralSettings.builder().setUseDefaults(false).build(),
-                    LoaderSettings.builder().setAutoUpdate(true).build(),
+                    generalSettings,
+                    loaderSettings,
                     DumperSettings.DEFAULT,
-                    UpdaterSettings.builder().setKeepAll(true).build()
+                    updaterSettings
             );
-        } catch (Exception e) {
-            LoggerUtils.error("Failed to initialize mines.yml: " + e.getMessage());
+        } catch (Exception exception) {
+            LoggerUtils.error("Failed to initialize mines.yml: " + exception.getMessage());
         }
     }
 
@@ -85,47 +102,84 @@ public class MineManager {
         resetDueAtMillis.clear();
         fillCache.clear();
 
-        if (minesConfig == null) return;
+        if (minesConfig == null) {
+            LoggerUtils.error("MinesConfig is null, cannot load mines!");
+            return;
+        }
 
-        if (minesConfig.get("mines") == null || minesConfig.getSection("mines") == null) {
+        try {
+            minesConfig.reload();
+        } catch (Exception exception) {
+            LoggerUtils.error("Failed to reload mines config: " + exception.getMessage());
+            return;
+        }
+
+        if (minesConfig.get("mines") == null) {
             LoggerUtils.info("No mines section found in configuration. Starting with empty mines list.");
             return;
         }
 
-        Set<String> mineNames = minesConfig.getSection("mines").getRoutesAsStrings(false);
+        Section minesSection = minesConfig.getSection("mines");
+        if (minesSection == null) {
+            LoggerUtils.info("Mines section is null. Starting with empty mines list.");
+            return;
+        }
+
+        Set<String> mineNames = minesSection.getRoutesAsStrings(false);
+        if (mineNames.isEmpty()) {
+            LoggerUtils.info("No mines found in configuration.");
+            return;
+        }
 
         for (String mineName : mineNames) {
             try {
-                Map<String, Object> mineSection = minesConfig.getSection("mines." + mineName).getStringRouteMappedValues(false);
+                Section mineSection = minesSection.getSection(mineName);
+                if (mineSection == null) {
+                    LoggerUtils.error("Mine section is null for: " + mineName);
+                    continue;
+                }
+
                 Mine mine = Mine.loadFromConfig(mineName, mineSection);
                 mines.put(mineName, mine);
 
                 if (mine.isValidMineArea()) startResetTask(mine);
-                LoggerUtils.info("Loaded mine: " + mineName);
-            } catch (Exception e) {
-                LoggerUtils.error("Failed to load mine '" + mineName + "': " + e.getMessage());
+            } catch (Exception exception) {
+                LoggerUtils.error("Failed to load mine '" + mineName + "': " + exception.getMessage());
             }
         }
 
-        LoggerUtils.info("Loaded " + mines.size() + " mines");
+        LoggerUtils.info("Successfully loaded " + mines.size() + " mines");
     }
 
     public void saveMines() {
-        if (minesConfig == null) return;
+        if (minesConfig == null) {
+            LoggerUtils.error("MinesConfig is null, cannot save mines!");
+            return;
+        }
 
         try {
-            minesConfig.set("mines", null);
+            minesConfig.remove("mines");
 
-            for (Mine mine : mines.values()) {
-                Map<String, Object> mineSection = new HashMap<>();
-                mine.saveToConfig(mineSection);
-                minesConfig.set("mines." + mine.getName(), mineSection);
+            if (!mines.isEmpty()) {
+                Section minesSection = minesConfig.getBackingDocument().createSection("mines");
+
+                LoggerUtils.info("Saving " + mines.size() + " mines to configuration...");
+
+                for (Mine mine : mines.values()) {
+                    try {
+                        Section mineSection = minesSection.createSection(mine.getName());
+                        mine.saveToConfig(mineSection);
+                    } catch (Exception exception) {
+                        LoggerUtils.error("Failed to save mine " + mine.getName() + ": " + exception.getMessage());
+                    }
+                }
             }
 
             minesConfig.save();
-            LoggerUtils.info("Saved " + mines.size() + " mines to mines.yml");
-        } catch (Exception e) {
-            LoggerUtils.error("Failed to save mines: " + e.getMessage());
+            LoggerUtils.info("Successfully saved mines configuration");
+
+        } catch (Exception exception) {
+            LoggerUtils.error("Failed to save mines: " + exception.getMessage());
         }
     }
 
@@ -146,7 +200,6 @@ public class MineManager {
             resetDueAtMillis.remove(name);
             fillCache.remove(name);
 
-            // Cancel both visual resetters
             sweepVisualResetter.cancel(name);
             waveVisualResetter.cancel(name);
 
@@ -160,9 +213,7 @@ public class MineManager {
     public synchronized void renameMine(@NotNull Mine mine, @NotNull String newName) {
         String oldName = mine.getName();
         if (oldName.equalsIgnoreCase(newName)) return;
-        if (getMine(newName) != null) {
-            throw new IllegalArgumentException("Mine already exists: " + newName);
-        }
+        if (getMine(newName) != null) throw new IllegalArgumentException("Mine already exists: " + newName);
 
         Long due = resetDueAtMillis.get(oldName);
         int remainingSecs = -1;
@@ -174,7 +225,6 @@ public class MineManager {
 
         Mine renamed = getRenamed(mine, newName);
 
-        // Cancel both visual resetters for old name
         sweepVisualResetter.cancel(oldName);
         waveVisualResetter.cancel(oldName);
 
@@ -187,17 +237,15 @@ public class MineManager {
         mines.put(newName, renamed);
 
         saveMines();
+        LoggerUtils.info("Renamed mine from '" + oldName + "' to '" + newName + "'");
 
         if (renamed.isValidMineArea()) {
             if (remainingSecs > 0) {
                 long newDueAt = System.currentTimeMillis() + remainingSecs * 1000L;
                 resetDueAtMillis.put(newName, newDueAt);
-                MyScheduledTask nt = plugin.getScheduler()
-                        .runTaskLater(() -> resetMine(renamed), remainingSecs * 20L);
+                MyScheduledTask nt = plugin.getScheduler().runTaskLater(() -> resetMine(renamed), remainingSecs * 20L);
                 resetTasks.put(newName, nt);
-            } else {
-                startResetTask(renamed);
-            }
+            } else startResetTask(renamed);
         }
     }
 
@@ -210,7 +258,6 @@ public class MineManager {
         renamed.setEntranceAreaPos2(mine.getEntranceAreaPos2());
         renamed.setEntrancePermission(mine.getEntrancePermission());
 
-        // Copy reset settings
         renamed.setVisualResetEnabled(mine.isVisualResetEnabled());
         renamed.setResetType(mine.getResetType());
         renamed.setResetDirection(mine.getResetDirection());
@@ -285,7 +332,7 @@ public class MineManager {
 
         var platforms = McMines.getInstance().getBlockPlatforms();
         record Weighted(BlockPlatforms.Placement p, int w) {}
-        List<Weighted> weighted = new java.util.ArrayList<>();
+        List<Weighted> weighted = new ArrayList<>();
         int total = 0;
 
         for (BlockData bd : blockDataList) {
@@ -295,8 +342,8 @@ public class MineManager {
                     weighted.add(new Weighted(placement, bd.chance()));
                     total += bd.chance();
                 }
-            } catch (Exception ex) {
-                LoggerUtils.error("Skipping invalid block: " + bd.material() + " (" + ex.getMessage() + ")");
+            } catch (Exception exception) {
+                LoggerUtils.error("Skipping invalid block: " + bd.material() + " (" + exception.getMessage() + ")");
             }
         }
 
@@ -307,7 +354,10 @@ public class MineManager {
 
         final int n = weighted.size();
         final int[] prefix = new int[n];
-        for (int i = 0, sum = 0; i < n; i++) { sum += weighted.get(i).w; prefix[i] = sum; }
+
+        for (int i = 0, sum = 0; i < n; i++) {
+            sum += weighted.get(i).w; prefix[i] = sum;
+        }
 
         var world = pos1.getWorld();
         var rng = ThreadLocalRandom.current();
@@ -318,21 +368,20 @@ public class MineManager {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     int r = rng.nextInt(total);
-                    int idx = java.util.Arrays.binarySearch(prefix, r + 1);
+                    int idx = Arrays.binarySearch(prefix, r + 1);
                     if (idx < 0) idx = -idx - 1;
 
                     loc.set(x, y, z);
                     try {
                         weighted.get(idx).p.placeAt(loc);
                         blocksReset++;
-                    } catch (Throwable t) {
-                        LoggerUtils.error("Failed to place block at " + x + "," + y + "," + z + ": " + t.getMessage());
+                    } catch (Throwable throwable) {
+                        LoggerUtils.error("Failed to place block at " + x + "," + y + "," + z + ": " + throwable.getMessage());
                     }
                 }
             }
         }
 
-        LoggerUtils.info("Reset mine '" + mine.getName() + "' - " + blocksReset + " blocks changed");
         fillCache.remove(mine.getName());
         startResetTask(mine);
     }
@@ -383,16 +432,12 @@ public class MineManager {
         sweepVisualResetter.shutdown();
         waveVisualResetter.shutdown();
         saveMines();
-        LoggerUtils.info("Mine manager shutdown complete");
     }
 
     public void resetAllMines() {
         for (Mine mine : mines.values()) {
-            if (mine.isValidMineArea()) {
-                resetMine(mine);
-            }
+            if (mine.isValidMineArea()) resetMine(mine);
         }
-        LoggerUtils.info("Reset all mines");
     }
 
     public int getSecondsUntilReset(@NotNull Mine mine) {
@@ -408,14 +453,10 @@ public class MineManager {
         long now = System.currentTimeMillis();
 
         CachedPercent cached = fillCache.get(key);
-        if (cached != null && (now - cached.timestamp) < cacheMillis) {
-            return cached.percent;
-        }
+        if (cached != null && (now - cached.timestamp) < cacheMillis) return cached.percent;
 
         double percent = computeRemainingPercentNow(mine);
-        if (percent >= 0) {
-            fillCache.put(key, new CachedPercent(percent, now));
-        }
+        if (percent >= 0) fillCache.put(key, new CachedPercent(percent, now));
         return percent;
     }
 
@@ -442,9 +483,7 @@ public class MineManager {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     Material type = w1.getBlockAt(x, y, z).getType();
-                    if (type != Material.AIR && type != Material.CAVE_AIR && type != Material.VOID_AIR) {
-                        nonAir++;
-                    }
+                    if (type != Material.AIR && type != Material.CAVE_AIR && type != Material.VOID_AIR) nonAir++;
                 }
             }
         }
@@ -453,5 +492,16 @@ public class MineManager {
         if (percent < 0) percent = 0;
         if (percent > 100) percent = 100;
         return percent;
+    }
+
+    public void reloadConfiguration() {
+        LoggerUtils.info("Force reloading mines configuration...");
+        try {
+            if (minesConfig != null) minesConfig.reload();
+            else initializeConfig();
+            loadMines();
+        } catch (Exception exception) {
+            LoggerUtils.error("Failed to reload mines configuration: " + exception.getMessage());
+        }
     }
 }

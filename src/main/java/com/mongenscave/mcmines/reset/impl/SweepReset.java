@@ -13,7 +13,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -38,12 +40,10 @@ public final class SweepReset extends Reset {
         int minZ = Math.min(a.getBlockZ(), b.getBlockZ());
         int maxZ = Math.max(a.getBlockZ(), b.getBlockZ());
 
-        long totalBlocks =
-                (long) (maxX - minX + 1) *
-                        (long) (maxY - minY + 1) *
-                        (long) (maxZ - minZ + 1);
+        long totalBlocks = (long) (maxX - minX + 1) * (long) (maxY - minY + 1) * (long) (maxZ - minZ + 1);
 
         List<BlockData> input = mine.getBlockDataList();
+
         if (input.isEmpty()) {
             LoggerUtils.warn("Mine '" + mine.getName() + "' has no block data configured");
             return;
@@ -61,10 +61,11 @@ public final class SweepReset extends Reset {
                     weighted.add(new Weighted(placement, bd.chance()));
                     totalWeight += bd.chance();
                 }
-            } catch (Exception ex) {
-                LoggerUtils.error("Skipping invalid block: " + bd.material() + " (" + ex.getMessage() + ")");
+            } catch (Exception exception) {
+                LoggerUtils.error("Skipping invalid block: " + bd.material() + " (" + exception.getMessage() + ")");
             }
         }
+
         if (totalWeight <= 0 || weighted.isEmpty()) {
             LoggerUtils.error("Mine '" + mine.getName() + "' has invalid total chance: " + totalWeight);
             return;
@@ -72,7 +73,10 @@ public final class SweepReset extends Reset {
 
         int n = weighted.size();
         int[] prefix = new int[n];
-        for (int i = 0, sum = 0; i < n; i++) { sum += weighted.get(i).weight; prefix[i] = sum; }
+        for (int i = 0, sum = 0; i < n; i++) {
+            sum += weighted.get(i).weight;
+            prefix[i] = sum;
+        }
 
         AxisIterator it = new AxisIterator(minX, maxX, minY, maxY, minZ, maxZ, settings.direction());
         cancel(mine.getName());
@@ -111,16 +115,14 @@ public final class SweepReset extends Reset {
                         float pitch = s.pitchStart() + (s.pitchEnd() - s.pitchStart()) * progress;
                         world.playSound(cursor, s.type(), s.volume(), pitch);
                     }
-                } catch (Throwable t) {
-                    LoggerUtils.error("Failed to place block at " +
-                            cursor.getBlockX() + "," + cursor.getBlockY() + "," + cursor.getBlockZ() + ": " + t.getMessage());
+                } catch (Throwable throwable) {
+                    LoggerUtils.error(throwable.getMessage());
                 }
                 work++;
             }
 
             if (!it.hasNext()) {
                 cancel(mine.getName());
-                LoggerUtils.info("Reset (visual) mine '" + mine.getName() + "' - " + placed.get() + " blocks changed");
                 onFinish.accept(mine);
             }
         }, 0L, settings.tickPeriod());
@@ -139,14 +141,42 @@ public final class SweepReset extends Reset {
             this.minY = minY; this.maxY = maxY;
             this.minZ = minZ; this.maxZ = maxZ;
             this.dir = dir;
+
             switch (dir) {
-                case WEST_EAST -> { x = minX; y = minY; z = minZ; }
-                case EAST_WEST -> { x = maxX; y = minY; z = minZ; }
-                case NORTH_SOUTH -> { z = minZ; y = minY; x = minX; }
-                case SOUTH_NORTH -> { z = maxZ; y = minY; x = minX; }
-                case DOWN_UP -> { y = minY; x = minX; z = minZ; }
-                case UP_DOWN -> { y = maxY; x = minX; z = minZ; }
+                case WEST_EAST -> {
+                    x = minX;
+                    y = minY;
+                    z = minZ;
+                }
+
+                case EAST_WEST -> {
+                    x = maxX;
+                    y = minY;
+                    z = minZ;
+                }
+
+                case NORTH_SOUTH -> {
+                    z = minZ;
+                    y = minY;
+                    x = minX;
+                }
+                case SOUTH_NORTH -> {
+                    z = maxZ;
+                    y = minY;
+                    x = minX;
+                }
+                case DOWN_UP -> {
+                    y = minY;
+                    x = minX;
+                    z = minZ;
+                }
+                case UP_DOWN -> {
+                    y = maxY;
+                    x = minX;
+                    z = minZ;
+                }
             }
+
             hasNext = true;
         }
 
@@ -170,22 +200,44 @@ public final class SweepReset extends Reset {
 
         private void stepXYZ(int xDir) {
             y++;
-            if (y > maxY) { y = minY; z++; }
-            if (z > maxZ) { z = minZ; x += xDir; }
+            if (y > maxY) {
+                y = minY;
+                z++;
+            }
+
+            if (z > maxZ) {
+                z = minZ;
+                x += xDir;
+            }
+
             if (xDir > 0 ? x > maxX : x < minX) hasNext = false;
         }
 
         private void stepZXY(int zDir) {
             y++;
-            if (y > maxY) { y = minY; x++; }
-            if (x > maxX) { x = minX; z += zDir; }
+
+            if (y > maxY) {
+                y = minY;
+                x++;
+            }
+            if (x > maxX) {
+                x = minX;
+                z += zDir;
+            }
+
             if (zDir > 0 ? z > maxZ : z < minZ) hasNext = false;
         }
 
         private void stepYXZ(int yDir) {
             x++;
-            if (x > maxX) { x = minX; z++; }
-            if (z > maxZ) { z = minZ; y += yDir; }
+            if (x > maxX) {
+                x = minX;
+                z++;
+            }
+            if (z > maxZ) {
+                z = minZ;
+                y += yDir;
+            }
             if (yDir > 0 ? y > maxY : y < minY) hasNext = false;
         }
     }

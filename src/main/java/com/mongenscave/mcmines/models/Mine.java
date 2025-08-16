@@ -5,6 +5,7 @@ import com.mongenscave.mcmines.data.ResetData;
 import com.mongenscave.mcmines.identifiers.ResetDirection;
 import com.mongenscave.mcmines.identifiers.ResetType;
 import com.mongenscave.mcmines.utils.LocationUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -57,128 +58,176 @@ public class Mine {
         this.blockDataList = new ArrayList<>();
     }
 
-    public void saveToConfig(@NotNull Map<String, Object> section) {
+    public void saveToConfig(@NotNull Section section) {
         List<Map<String, Object>> blockDataMaps = Collections.synchronizedList(new ArrayList<>());
         for (BlockData blockData : blockDataList) {
             Map<String, Object> blockMap = Map.of(
                     "material", blockData.material(),
                     "chance", blockData.chance()
             );
-
             blockDataMaps.add(blockMap);
         }
+        section.set("block-data", blockDataMaps);
+        section.set("reset-after", resetAfter);
 
-        section.put("block-data", blockDataMaps);
-        section.put("reset-after", resetAfter);
+        if (mineAreaPos1 != null || mineAreaPos2 != null) {
+            Section mineAreaSection = section.createSection("mine-area");
 
-        if (mineAreaPos1 != null) section.put("mine-area.pos1", LocationUtils.serialize(mineAreaPos1));
-        if (mineAreaPos2 != null) section.put("mine-area.pos2", LocationUtils.serialize(mineAreaPos2));
-        if (entranceAreaPos1 != null) section.put("entrance-area.pos1", LocationUtils.serialize(entranceAreaPos1));
-        if (entranceAreaPos2 != null) section.put("entrance-area.pos2", LocationUtils.serialize(entranceAreaPos2));
-        if (entrancePermission != null && !entrancePermission.isEmpty()) section.put("entrance-permission", entrancePermission);
+            if (mineAreaPos1 != null) mineAreaSection.set("pos1", LocationUtils.serialize(mineAreaPos1));
+            if (mineAreaPos2 != null) mineAreaSection.set("pos2", LocationUtils.serialize(mineAreaPos2));
+        }
 
-        section.put("visual-reset.enabled", visualResetEnabled);
-        section.put("visual-reset.type", resetType.name());
-        section.put("visual-reset.direction", resetDirection.name());
-        section.put("visual-reset.blocks-per-tick", blocksPerTick);
-        section.put("visual-reset.tick-period", tickPeriod);
+        if (entranceAreaPos1 != null || entranceAreaPos2 != null) {
+            Section entranceAreaSection = section.createSection("entrance-area");
 
-        section.put("visual-reset.particle.type", particleType.name());
-        section.put("visual-reset.particle.count", particleCount);
-        section.put("visual-reset.particle.offset-x", particleOffsetX);
-        section.put("visual-reset.particle.offset-y", particleOffsetY);
-        section.put("visual-reset.particle.offset-z", particleOffsetZ);
-        section.put("visual-reset.particle.speed", particleSpeed);
+            if (entranceAreaPos1 != null) entranceAreaSection.set("pos1", LocationUtils.serialize(entranceAreaPos1));
+            if (entranceAreaPos2 != null) entranceAreaSection.set("pos2", LocationUtils.serialize(entranceAreaPos2));
+        }
 
-        section.put("visual-reset.sound.type", soundType.name());
-        section.put("visual-reset.sound.volume", soundVolume);
-        section.put("visual-reset.sound.pitch-start", soundPitchStart);
-        section.put("visual-reset.sound.pitch-end", soundPitchEnd);
-        section.put("visual-reset.sound.every-placement", soundEveryPlacement);
+        if (entrancePermission != null && !entrancePermission.isEmpty()) section.set("entrance-permission", entrancePermission);
+
+        Section visualResetSection = section.createSection("visual-reset");
+        visualResetSection.set("enabled", visualResetEnabled);
+        visualResetSection.set("type", resetType.name());
+        visualResetSection.set("direction", resetDirection.name());
+        visualResetSection.set("blocks-per-tick", blocksPerTick);
+        visualResetSection.set("tick-period", tickPeriod);
+
+        Section particleSection = visualResetSection.createSection("particle");
+        particleSection.set("type", particleType.name());
+        particleSection.set("count", particleCount);
+        particleSection.set("offset-x", particleOffsetX);
+        particleSection.set("offset-y", particleOffsetY);
+        particleSection.set("offset-z", particleOffsetZ);
+        particleSection.set("speed", particleSpeed);
+
+        Section soundSection = visualResetSection.createSection("sound");
+        soundSection.set("type", soundType.name());
+        soundSection.set("volume", soundVolume);
+        soundSection.set("pitch-start", soundPitchStart);
+        soundSection.set("pitch-end", soundPitchEnd);
+        soundSection.set("every-placement", soundEveryPlacement);
     }
 
     @NotNull
-    public static Mine loadFromConfig(@NotNull String name, @NotNull Map<String, Object> section) {
+    public static Mine loadFromConfig(@NotNull String name, @NotNull Section section) {
         Mine mine = new Mine(name, 0);
 
-        if (section.containsKey("block-data") && section.get("block-data") instanceof List<?> blockDataList) {
-            for (Object obj : blockDataList) {
-                if (obj instanceof Map<?, ?> blockMap) {
-                    String material = (String) blockMap.get("material");
-                    int chance = (Integer) blockMap.get("chance");
-                    mine.blockDataList.add(new BlockData(material, chance));
+        if (section.contains("block-data")) {
+            List<?> blockDataList = section.getList("block-data");
+
+            if (blockDataList != null) {
+                for (Object obj : blockDataList) {
+                    if (obj instanceof Map<?, ?> blockMap) {
+                        Object materialObj = blockMap.get("material");
+                        Object chanceObj = blockMap.get("chance");
+
+                        if (materialObj instanceof String material && chanceObj instanceof Integer chance && chance > 0) mine.blockDataList.add(new BlockData(material, chance));
+                    }
                 }
             }
         }
 
-        mine.resetAfter = (Integer) section.getOrDefault("reset-after", 300);
+        mine.resetAfter = section.getInt("reset-after", 300);
 
-        if (section.containsKey("mine-area.pos1")) mine.mineAreaPos1 = LocationUtils.deserialize((String) section.get("mine-area.pos1"));
-        if (section.containsKey("mine-area.pos2")) mine.mineAreaPos2 = LocationUtils.deserialize((String) section.get("mine-area.pos2"));
-        if (section.containsKey("entrance-area.pos1")) mine.entranceAreaPos1 = LocationUtils.deserialize((String) section.get("entrance-area.pos1"));
-        if (section.containsKey("entrance-area.pos2")) mine.entranceAreaPos2 = LocationUtils.deserialize((String) section.get("entrance-area.pos2"));
+        if (section.contains("mine-area")) {
+            Section mineAreaSection = section.getSection("mine-area");
+            if (mineAreaSection != null) {
+                String pos1Str = mineAreaSection.getString("pos1");
+                String pos2Str = mineAreaSection.getString("pos2");
 
-        mine.entrancePermission = (String) section.get("entrance-permission");
+                if (pos1Str != null) mine.mineAreaPos1 = LocationUtils.deserialize(pos1Str);
+                if (pos2Str != null) mine.mineAreaPos2 = LocationUtils.deserialize(pos2Str);
+            }
+        }
 
-        mine.visualResetEnabled = (Boolean) section.getOrDefault("visual-reset.enabled", false);
-        mine.resetType = parseResetType((String) section.getOrDefault("visual-reset.type", "SWEEP"));
-        mine.resetDirection = parseResetDirection((String) section.getOrDefault("visual-reset.direction", "WEST_EAST"));
-        mine.blocksPerTick = (Integer) section.getOrDefault("visual-reset.blocks-per-tick", 120);
-        mine.tickPeriod = (Integer) section.getOrDefault("visual-reset.tick-period", 2);
+        if (section.contains("entrance-area")) {
+            Section entranceAreaSection = section.getSection("entrance-area");
+            if (entranceAreaSection != null) {
+                String pos1Str = entranceAreaSection.getString("pos1");
+                String pos2Str = entranceAreaSection.getString("pos2");
 
-        mine.particleType = parseParticle((String) section.getOrDefault("visual-reset.particle.type", "ENCHANTMENT_TABLE"));
-        mine.particleCount = (Integer) section.getOrDefault("visual-reset.particle.count", 2);
-        mine.particleOffsetX = (Double) section.getOrDefault("visual-reset.particle.offset-x", 0.0);
-        mine.particleOffsetY = (Double) section.getOrDefault("visual-reset.particle.offset-y", 0.0);
-        mine.particleOffsetZ = (Double) section.getOrDefault("visual-reset.particle.offset-z", 0.0);
-        mine.particleSpeed = (Double) section.getOrDefault("visual-reset.particle.speed", 0.0);
+                if (pos1Str != null) mine.entranceAreaPos1 = LocationUtils.deserialize(pos1Str);
+                if (pos2Str != null) mine.entranceAreaPos2 = LocationUtils.deserialize(pos2Str);
+            }
+        }
 
-        mine.soundType = parseSound((String) section.getOrDefault("visual-reset.sound.type", "BLOCK_AMETHYST_BLOCK_CHIME"));
-        mine.soundVolume = parseFloat(section.getOrDefault("visual-reset.sound.volume", 0.6), 0.6f);
-        mine.soundPitchStart = parseFloat(section.getOrDefault("visual-reset.sound.pitch-start", 0.95), 0.95f);
-        mine.soundPitchEnd = parseFloat(section.getOrDefault("visual-reset.sound.pitch-end", 1.35), 1.35f);
-        mine.soundEveryPlacement = (Integer) section.getOrDefault("visual-reset.sound.every-placement", 40);
+        mine.entrancePermission = section.getString("entrance-permission");
+
+        if (section.contains("visual-reset")) {
+            Section visualResetSection = section.getSection("visual-reset");
+            if (visualResetSection != null) {
+                mine.visualResetEnabled = visualResetSection.getBoolean("enabled", false);
+                mine.resetType = parseResetType(visualResetSection.getString("type", "SWEEP"));
+                mine.resetDirection = parseResetDirection(visualResetSection.getString("direction", "WEST_EAST"));
+                mine.blocksPerTick = visualResetSection.getInt("blocks-per-tick", 120);
+                mine.tickPeriod = visualResetSection.getInt("tick-period", 2);
+
+                if (visualResetSection.contains("particle")) {
+                    Section particleSection = visualResetSection.getSection("particle");
+                    if (particleSection != null) {
+                        mine.particleType = parseParticle(particleSection.getString("type", "ENCHANT"));
+                        mine.particleCount = particleSection.getInt("count", 2);
+                        mine.particleOffsetX = particleSection.getDouble("offset-x", 0.0);
+                        mine.particleOffsetY = particleSection.getDouble("offset-y", 0.0);
+                        mine.particleOffsetZ = particleSection.getDouble("offset-z", 0.0);
+                        mine.particleSpeed = particleSection.getDouble("speed", 0.0);
+                    }
+                }
+
+                if (visualResetSection.contains("sound")) {
+                    Section soundSection = visualResetSection.getSection("sound");
+
+                    if (soundSection != null) {
+                        mine.soundType = parseSound(soundSection.getString("type", "BLOCK_AMETHYST_BLOCK_CHIME"));
+                        mine.soundVolume = soundSection.getFloat("volume", 0.6f);
+                        mine.soundPitchStart = soundSection.getFloat("pitch-start", 0.95f);
+                        mine.soundPitchEnd = soundSection.getFloat("pitch-end", 1.35f);
+                        mine.soundEveryPlacement = soundSection.getInt("every-placement", 40);
+                    }
+                }
+            }
+        }
 
         return mine;
     }
 
-    private static float parseFloat(Object obj, float defaultValue) {
-        return switch (obj) {
-            case Float v -> v;
-            case Double v -> v.floatValue();
-            case Integer i -> i.floatValue();
-            case null, default -> defaultValue;
-        };
-    }
-
     private static ResetType parseResetType(String raw) {
+        if (raw == null || raw.isEmpty()) return ResetType.SWEEP;
+
         try {
-            return ResetType.valueOf(String.valueOf(raw).toUpperCase());
-        } catch (Exception ignored) {
+            return ResetType.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
             return ResetType.SWEEP;
         }
     }
 
     private static ResetDirection parseResetDirection(String raw) {
+        if (raw == null || raw.isEmpty()) return ResetDirection.WEST_EAST;
+
         try {
-            return ResetDirection.valueOf(String.valueOf(raw).toUpperCase());
-        } catch (Exception ignored) {
+            return ResetDirection.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
             return ResetDirection.WEST_EAST;
         }
     }
 
     private static Particle parseParticle(String raw) {
+        if (raw == null || raw.isEmpty()) return Particle.ENCHANT;
+
         try {
-            return Particle.valueOf(String.valueOf(raw).toUpperCase());
-        } catch (Exception ignored) {
+            return Particle.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
             return Particle.ENCHANT;
         }
     }
 
     private static Sound parseSound(String raw) {
+        if (raw == null || raw.isEmpty()) return Sound.BLOCK_AMETHYST_BLOCK_CHIME;
+
         try {
-            return Sound.valueOf(String.valueOf(raw).toUpperCase());
-        } catch (Exception ignored) {
+            return Sound.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
             return Sound.BLOCK_AMETHYST_BLOCK_CHIME;
         }
     }

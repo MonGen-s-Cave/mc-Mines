@@ -32,7 +32,6 @@ public final class MineEntranceListener implements Listener {
 
         Player player = event.getPlayer();
         Location to = event.getTo();
-        if (to == null) return;
 
         for (Mine mine : mineManager.getAllMines()) {
             if (mine.getEntranceAreaPos1() == null || mine.getEntranceAreaPos2() == null) continue;
@@ -41,8 +40,7 @@ public final class MineEntranceListener implements Listener {
                 String requiredPerm = mine.getEntrancePermission();
                 if (requiredPerm != null && !requiredPerm.isEmpty() && !player.hasPermission(requiredPerm)) {
                     event.setTo(event.getFrom());
-                    player.sendMessage(MessageProcessor.process(
-                            MessageKeys.ENTRANCE_NO_PERMISSION.getMessage().replace("{permission}", requiredPerm)));
+                    player.sendMessage(MessageKeys.ENTRANCE_NO_PERMISSION.getMessage().replace("{permission}", requiredPerm));
                     stopActionbar(player.getUniqueId());
                     return;
                 }
@@ -60,16 +58,14 @@ public final class MineEntranceListener implements Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onQuit(@NotNull PlayerQuitEvent event) {
         stopActionbar(event.getPlayer().getUniqueId());
     }
 
     private void ensureActionbar(@NotNull Player player, @NotNull Mine mine) {
         UUID id = player.getUniqueId();
         String current = viewingMineByPlayer.get(id);
-        if (mine.getName().equalsIgnoreCase(current) && actionbarTasks.containsKey(id)) {
-            return;
-        }
+        if (mine.getName().equalsIgnoreCase(current) && actionbarTasks.containsKey(id)) return;
 
         stopActionbar(id);
 
@@ -104,7 +100,7 @@ public final class MineEntranceListener implements Listener {
                             "reset_countdown", countdown,
                             "remaining_percent", remaining);
 
-            p.sendActionBar(net.kyori.adventure.text.Component.text(MessageProcessor.process(line)));
+            p.sendActionBar(line);
         }, 0L, 20L);
 
         actionbarTasks.put(id, task);
@@ -142,6 +138,7 @@ public final class MineEntranceListener implements Listener {
         return x.getWorld() != null && x.getWorld().equals(y.getWorld());
     }
 
+    @NotNull
     private static Location boxCenter(@NotNull Location a, @NotNull Location b) {
         int minX = Math.min(a.getBlockX(), b.getBlockX());
         int maxX = Math.max(a.getBlockX(), b.getBlockX()) + 1;
@@ -178,6 +175,7 @@ public final class MineEntranceListener implements Listener {
                 && z >= minZ && z <= maxZ;
     }
 
+    @NotNull
     private static String formatHMS(int totalSeconds) {
         int s = Math.max(0, totalSeconds);
         int h = s / 3600; s %= 3600;

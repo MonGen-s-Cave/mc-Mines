@@ -30,10 +30,10 @@ public class CommandMine {
         plugin.getLanguage().reload();
         plugin.getHooks().reload();
         plugin.getGuis().reload();
-        mineManager.loadMines();
-        mineManager.resetAllMines();
+        mineManager.reloadConfiguration();
+        if (!mineManager.getAllMines().isEmpty()) mineManager.resetAllMines();
 
-        sender.sendMessage(Component.text("McMines configuration reloaded!", NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("McMines configuration reloaded successfully!", NamedTextColor.GREEN));
     }
 
     @Subcommand("editor")
