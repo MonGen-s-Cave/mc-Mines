@@ -1,7 +1,10 @@
 package com.mongenscave.mcmines.block;
 
 import com.mongenscave.mcmines.McMines;
+import com.mongenscave.mcmines.block.impl.CraftEnginePlatform;
+import com.mongenscave.mcmines.block.impl.ItemsAdderPlatform;
 import com.mongenscave.mcmines.block.impl.NexoPlatform;
+import com.mongenscave.mcmines.block.impl.OraxenPlatform;
 import com.mongenscave.mcmines.block.key.BlockKey;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import org.bukkit.Location;
@@ -27,6 +30,21 @@ public final class BlockPlatforms {
         if (McMines.getInstance().getHooks().getBoolean("hooks.register.Nexo")) {
             LoggerUtils.info("\u001B[32m   [Hook] Nexo successfully enabled.\u001B[0m");
             register(new NexoPlatform());
+        }
+
+        if (McMines.getInstance().getHooks().getBoolean("hooks.register.Oraxen")) {
+            LoggerUtils.info("\u001B[32m   [Hook] Oraxen successfully enabled.\u001B[0m");
+            register(new OraxenPlatform());
+        }
+
+        if (McMines.getInstance().getHooks().getBoolean("hooks.register.CraftEngine")) {
+            LoggerUtils.info("\u001B[32m   [Hook] CraftEngine successfully enabled.\u001B[0m");
+            register(new CraftEnginePlatform());
+        }
+
+        if (McMines.getInstance().getHooks().getBoolean("hooks.register.ItemsAdder")) {
+            LoggerUtils.info("\u001B[32m   [Hook] ItemsAdder successfully enabled.\u001B[0m");
+            register(new ItemsAdderPlatform());
         }
     }
 
