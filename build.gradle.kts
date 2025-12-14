@@ -16,13 +16,18 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.nexomc.com/releases")
+    maven("https://repo.oraxen.com/releases")
+    maven("https://maven.devs.beer/")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.36")
     compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("com.nexomc:nexo:1.8.0")
+
+    compileOnly("com.nexomc:nexo:1.15.0")
+    compileOnly("io.th0rgal:oraxen:1.200.0")
+    compileOnly("dev.lone:api-itemsadder:4.0.10")
 
     implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.12") {
         exclude(module = "lamp.common")
