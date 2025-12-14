@@ -1,6 +1,7 @@
 prefix: "&#758CE3[Mines]"
 
 messages:
+  reload: "%prefix% &aYou have successfully reloaded the files!"
   no-permission: "%prefix% &cNincs jogod ehhez."
   player-required: "%prefix% &cEzt csak játékos használhatja."
 

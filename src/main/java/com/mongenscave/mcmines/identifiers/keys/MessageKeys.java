@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public enum MessageKeys {
+    RELOAD("messages.reload"),
+
     NO_PERMISSION("messages.no-permission"),
     PLAYER_REQUIRED("messages.player-required"),
 
