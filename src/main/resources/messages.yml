@@ -64,6 +64,6 @@ messages:
     no-permission: "%prefix% &cYou don't have permission to enter this zone. &4({permission})"
 
   actionbar:
-    mine-status: "&6{mine} &7| Reset: &e{reset_seconds}s &7| Blocks: &e{blocks_count} &7| Volume: &e{volume}"
+    mine-status: "&6{mine} &7| Reset: &e{reset_countdown} &7| Remaining: &e{remaining_percent}"
 
 version: '1'

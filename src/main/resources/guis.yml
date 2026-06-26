@@ -118,4 +118,25 @@ mine-editor:
       material: GRAY_STAINED_GLASS_PANE
       name: '&f'
 
+mine-blocks:
+  title: "Blocks — {mine}"
+  size: 54
+
+  items:
+    decoration:
+      slot: [45, 46, 47, 48, 49, 50, 51, 52, 53]
+      material: GRAY_STAINED_GLASS_PANE
+      name: '&f'
+
+  block-template:
+    name: "&e{block_key}"
+    lore:
+      - ""
+      - "&7Chance: &a{chance}%"
+      - ""
+      - "&8Left: &f+1  &8| Right: &f-1"
+      - "&8Shift+Left: &f+5  &8| Shift+Right: &f-5"
+      - "&cMiddle/Q: Remove"
+      - ""
+
 version: '1'
