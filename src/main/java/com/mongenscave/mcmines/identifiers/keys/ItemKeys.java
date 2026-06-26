@@ -15,7 +15,7 @@ public enum ItemKeys {
 
     MINE_EDITOR_BACK("mine-editor.items.back"),
     MINE_EDITOR_RENAME("mine-editor.items.rename"),
-    MINE_EDITOR_SET_RESET("mine-editor.mine.set-reset-time"),
+    MINE_EDITOR_SET_RESET("mine-editor.items.set-reset-time"),
     MINE_EDITOR_SET_PERMISSION("mine-editor.items.set-permission"),
     MINE_EDITOR_BLOCKS("mine-editor.items.blocks"),
     MINE_EDITOR_RESET("mine-editor.items.reset"),

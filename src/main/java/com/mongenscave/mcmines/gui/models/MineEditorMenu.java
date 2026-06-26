@@ -100,9 +100,8 @@ public final class MineEditorMenu extends Menu {
 
             case MINE_EDITOR_SET_RESET -> {
                 menuController.owner().closeInventory();
-                menuController.owner().sendMessage(MessageKeys.PROMPT_SET_RESET_START.getMessage());
 
-                PromptManager.request(menuController.owner(), null, (player, input) -> {
+                PromptManager.request(menuController.owner(), MessageKeys.PROMPT_SET_RESET_START.getMessage(), (player, input) -> {
                     try {
                         int seconds = Integer.parseInt(input.trim());
                         if (seconds <= 0 || seconds > 86400) player.sendMessage(MessageKeys.PROMPT_SET_RESET_RANGE.getMessage());
