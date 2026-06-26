@@ -29,6 +29,9 @@ public enum MessageKeys {
     PROMPT_RENAME_EXISTS("messages.prompt.editor.rename.exists"),
     PROMPT_RENAME_SUCCESS("messages.prompt.editor.rename.success"),
 
+    PROMPT_RENAME_DISPLAY_START("messages.prompt.editor.rename-display.start"),
+    PROMPT_RENAME_DISPLAY_SUCCESS("messages.prompt.editor.rename-display.success"),
+
     PROMPT_SET_RESET_START("messages.prompt.editor.set-reset.start"),
     PROMPT_SET_RESET_RANGE("messages.prompt.editor.set-reset.range"),
     PROMPT_SET_RESET_SUCCESS("messages.prompt.editor.set-reset.success"),

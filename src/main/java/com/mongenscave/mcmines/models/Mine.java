@@ -27,6 +27,7 @@ public class Mine {
     @NotNull private String name;
     @NotNull private List<BlockData> blockDataList = Collections.synchronizedList(new ArrayList<>());
     private int resetAfter;
+    @Nullable private String displayName;
     @Nullable private Location mineAreaPos1;
     @Nullable private Location mineAreaPos2;
     @Nullable private Location entranceAreaPos1;
@@ -69,6 +70,8 @@ public class Mine {
         }
         section.set("block-data", blockDataMaps);
         section.set("reset-after", resetAfter);
+
+        if (displayName != null && !displayName.isEmpty()) section.set("display-name", displayName);
 
         if (mineAreaPos1 != null || mineAreaPos2 != null) {
             Section mineAreaSection = section.createSection("mine-area");
@@ -151,6 +154,8 @@ public class Mine {
                 if (pos2Str != null) mine.entranceAreaPos2 = LocationUtils.deserialize(pos2Str);
             }
         }
+
+        mine.displayName = section.getString("display-name");
 
         mine.entrancePermission = section.getString("entrance-permission");
 

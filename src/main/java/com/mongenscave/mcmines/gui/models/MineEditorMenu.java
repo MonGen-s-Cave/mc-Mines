@@ -14,6 +14,7 @@ import com.mongenscave.mcmines.managers.WandManager;
 import com.mongenscave.mcmines.models.Mine;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -60,30 +61,41 @@ public final class MineEditorMenu extends Menu {
             }
 
             case MINE_EDITOR_RENAME -> {
-                menuController.owner().closeInventory();
-                PromptManager.request(menuController.owner(), MessageKeys.PROMPT_RENAME_START.getMessage(), (player, input) -> {
-                    String newName = input == null ? "" : input.trim();
-                    if (!newName.matches("[A-Za-z0-9_\\-]{1,32}")) {
-                        player.sendMessage(MessageKeys.PROMPT_RENAME_INVALID.getMessage());
+                if (event.getClick() == ClickType.LEFT) {
+                    menuController.owner().closeInventory();
+                    PromptManager.request(menuController.owner(), MessageKeys.PROMPT_RENAME_DISPLAY_START.getMessage(), (player, input) -> {
+                        String newDisplay = input == null ? "" : input.trim();
+                        mine.setDisplayName(newDisplay.isEmpty() ? null : newDisplay);
+                        mineManager.updateMine(mine);
+                        player.sendMessage(MessageKeys.PROMPT_RENAME_DISPLAY_SUCCESS.with("name", newDisplay));
                         new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
-                        return;
-                    }
-                    if (mineManager.getMine(newName) != null) {
-                        player.sendMessage(MessageKeys.PROMPT_RENAME_EXISTS.with("name", newName));
-                        new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
-                        return;
-                    }
+                    });
+                } else if (event.getClick() == ClickType.RIGHT) {
+                    menuController.owner().closeInventory();
+                    PromptManager.request(menuController.owner(), MessageKeys.PROMPT_RENAME_START.getMessage(), (player, input) -> {
+                        String newName = input == null ? "" : input.trim();
+                        if (!newName.matches("[A-Za-z0-9_\\-]{1,32}")) {
+                            player.sendMessage(MessageKeys.PROMPT_RENAME_INVALID.getMessage());
+                            new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
+                            return;
+                        }
+                        if (mineManager.getMine(newName) != null) {
+                            player.sendMessage(MessageKeys.PROMPT_RENAME_EXISTS.with("name", newName));
+                            new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
+                            return;
+                        }
 
-                    try {
-                        mineManager.renameMine(mine, newName);
-                        player.sendMessage(MessageKeys.PROMPT_RENAME_SUCCESS.with("name", newName));
-                        Mine renamed = mineManager.getMine(newName);
-                        new MineEditorMenu(MenuController.getMenuUtils(player), renamed != null ? renamed : mine).open();
-                    } catch (Exception ex) {
-                        player.sendMessage(Component.text("Rename failed: " + ex.getMessage()));
-                        new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
-                    }
-                });
+                        try {
+                            mineManager.renameMine(mine, newName);
+                            player.sendMessage(MessageKeys.PROMPT_RENAME_SUCCESS.with("name", newName));
+                            Mine renamed = mineManager.getMine(newName);
+                            new MineEditorMenu(MenuController.getMenuUtils(player), renamed != null ? renamed : mine).open();
+                        } catch (Exception ex) {
+                            player.sendMessage(Component.text("Rename failed: " + ex.getMessage()));
+                            new MineEditorMenu(MenuController.getMenuUtils(player), mine).open();
+                        }
+                    });
+                }
             }
 
             case MINE_EDITOR_SET_RESET -> {

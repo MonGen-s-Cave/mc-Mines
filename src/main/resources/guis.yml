@@ -108,6 +108,11 @@ mine-editor:
       slot: 16
       material: "NAME_TAG"
       name: "&#758CE3Rename the Mine"
+      lore:
+        - ""
+        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fDisplay név"
+        - "&#758CE3ʀɪɢʜᴛ ᴄʟɪᴄᴋ: &fID átnevezés"
+        - ""
 
     back:
       slot: 31

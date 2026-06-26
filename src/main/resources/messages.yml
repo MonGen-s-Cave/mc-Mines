@@ -44,6 +44,9 @@ messages:
         range: "%prefix% &cA megadott idő nem megfelelő. &7(1..86400)"
         success: "%prefix% &aSiker! &7Reset idő: &f{seconds}s"
         invalid: "%prefix% &cÉrvénytelen számformátum!"
+      rename-display:
+        start: '%prefix% &7Írd be az új display nevet!'
+        success: '%prefix% &aDisplay név sikeresen megváltoztatva: &f{name}'
       rename:
         start: "%prefix% &7Írd be az új bányanévet &8(&71-32 betű/szám, _ -&8)&7:"
         invalid: "%prefix% &cÉrvénytelen név! &7Csak betű/szám, '_' és '-' engedélyezett (1-32)."

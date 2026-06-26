@@ -95,8 +95,12 @@ public final class MineEntranceListener implements Listener {
             double rem = mineManager.getRemainingPercent(m, 5000);
             String remaining = rem < 0 ? "?" : String.format("%.1f%%", rem);
 
+            String mineName = (m.getDisplayName() != null && !m.getDisplayName().isEmpty())
+                    ? m.getDisplayName()
+                    : m.getName();
+
             String line = MessageKeys.ACTIONBAR_MINE_STATUS
-                    .with("mine", m.getName(),
+                    .with("mine", mineName,
                             "reset_countdown", countdown,
                             "remaining_percent", remaining);
 
