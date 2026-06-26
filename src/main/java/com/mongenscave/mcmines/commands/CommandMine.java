@@ -5,6 +5,7 @@ import com.mongenscave.mcmines.data.MenuController;
 import com.mongenscave.mcmines.gui.models.MineSelectorMenu;
 import com.mongenscave.mcmines.identifiers.keys.MessageKeys;
 import com.mongenscave.mcmines.managers.MineManager;
+import com.mongenscave.mcmines.models.Mine;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -34,5 +35,17 @@ public class CommandMine {
     @CommandPermission("mcmines.edit")
     public void openEditor(@NotNull Player player) {
         new MineSelectorMenu(MenuController.getMenuUtils(player)).open();
+    }
+
+    @Subcommand("reset")
+    @CommandPermission("mcmines.reset")
+    public void resetMine(@NotNull CommandSender sender, @NotNull String mineName) {
+        Mine mine = mineManager.getMine(mineName);
+        if (mine == null) {
+            sender.sendMessage(MessageKeys.MINE_NOT_FOUND.getMessage());
+            return;
+        }
+        mineManager.resetMine(mine);
+        sender.sendMessage(MessageKeys.MINE_RESET_SUCCESS.getMessage());
     }
 }

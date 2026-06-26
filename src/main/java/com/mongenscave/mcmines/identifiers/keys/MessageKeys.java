@@ -13,6 +13,9 @@ public enum MessageKeys {
     NO_PERMISSION("messages.no-permission"),
     PLAYER_REQUIRED("messages.player-required"),
 
+    MINE_NOT_FOUND("messages.commands.mine-not-found"),
+    MINE_RESET_SUCCESS("messages.commands.reset-success"),
+
     PROMPT_CREATE_NAME_START("messages.prompt.create.name.start"),
     PROMPT_CREATE_NAME_INVALID("messages.prompt.create.name.invalid"),
     PROMPT_CREATE_NAME_EXISTS("messages.prompt.create.name.exists"),

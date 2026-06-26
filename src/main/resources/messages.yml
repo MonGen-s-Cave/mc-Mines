@@ -5,6 +5,10 @@ messages:
   no-permission: "%prefix% &cNincs jogod ehhez."
   player-required: "%prefix% &cEzt csak játékos használhatja."
 
+  commands:
+    mine-not-found: '%prefix% &cBánya nem található!'
+    reset-success: '%prefix% &aBánya sikeresen újratöltve!'
+
   wand:
     start-mine: "%prefix% &7Kijelölés indult a &emine area&7-hoz. &8(Bal: Pos1, Jobb: Pos2)"
     start-entrance: "%prefix% &7Kijelölés indult az &bentrance area&7-hoz. &8(Bal: Pos1, Jobb: Pos2)"
