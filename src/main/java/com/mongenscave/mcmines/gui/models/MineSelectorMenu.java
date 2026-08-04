@@ -136,8 +136,8 @@ public final class MineSelectorMenu extends PaginatedMenu {
             if (clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP) {
                 boolean deleted = manager.deleteMine(mineName);
 
-                if (deleted) menuController.owner().sendMessage(Component.text("Bánya törölve: " + mineName));
-                else menuController.owner().sendMessage(Component.text("A bánya nem található: " + mineName));
+                if (deleted) menuController.owner().sendMessage(Component.text("Mine deleted: " + mineName));
+                else menuController.owner().sendMessage(Component.text("Mine not found: " + mineName));
 
                 page = 0;
                 open();

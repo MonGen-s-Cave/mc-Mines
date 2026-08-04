@@ -110,8 +110,21 @@ mine-editor:
       name: "&#758CE3Rename the Mine"
       lore:
         - ""
-        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fDisplay név"
-        - "&#758CE3ʀɪɢʜᴛ ᴄʟɪᴄᴋ: &fID átnevezés"
+        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fDisplay name"
+        - "&#758CE3ʀɪɢʜᴛ ᴄʟɪᴄᴋ: &fRename ID"
+        - ""
+
+    set-teleport:
+      slot: 22
+      material: "ENDER_PEARL"
+      name: "&#758CE3Recovery Location"
+      lore:
+        - ""
+        - "&#758CE3Current:"
+        - " &8› {teleport_location}"
+        - ""
+        - "&#758CE3ʟᴇꜰᴛ ᴄʟɪᴄᴋ: &fꜱᴇᴛ ᴛᴏ ᴡʜᴇʀᴇ ʏᴏᴜ ꜱᴛᴀɴᴅ"
+        - "&#758CE3ʀɪɢʜᴛ ᴄʟɪᴄᴋ: &fᴄʟᴇᴀʀ"
         - ""
 
     back:

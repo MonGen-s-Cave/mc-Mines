@@ -12,13 +12,19 @@ import com.mongenscave.mcmines.managers.MineManager;
 import com.mongenscave.mcmines.managers.PromptManager;
 import com.mongenscave.mcmines.managers.WandManager;
 import com.mongenscave.mcmines.models.Mine;
+import com.mongenscave.mcmines.processor.MessageProcessor;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -135,6 +141,29 @@ public final class MineEditorMenu extends Menu {
                 });
             }
 
+            case MINE_EDITOR_SET_TELEPORT -> {
+                Player player = menuController.owner();
+
+                if (event.getClick() == ClickType.RIGHT) {
+                    mine.setTeleportLocation(null);
+                    mineManager.updateMine(mine);
+                    player.sendMessage(MessageKeys.PROMPT_SET_TELEPORT_CLEARED.getMessage());
+                } else if (event.getClick() == ClickType.LEFT) {
+                    Location location = player.getLocation().clone();
+                    mine.setTeleportLocation(location);
+                    mineManager.updateMine(mine);
+
+                    player.sendMessage(MessageKeys.PROMPT_SET_TELEPORT_SET.with(
+                            "world", location.getWorld() == null ? "?" : location.getWorld().getName(),
+                            "x", String.format(Locale.US, "%.1f", location.getX()),
+                            "y", String.format(Locale.US, "%.1f", location.getY()),
+                            "z", String.format(Locale.US, "%.1f", location.getZ())
+                    ));
+                } else return;
+
+                updateMenuItems();
+            }
+
             case MINE_EDITOR_BLOCKS -> new MineBlocksMenu(menuController, mine).open();
 
             case MINE_EDITOR_RESET -> {
@@ -163,6 +192,7 @@ public final class MineEditorMenu extends Menu {
 
         setMenuItem(ItemKeys.MINE_EDITOR_SET_RESET);
         setMenuItem(ItemKeys.MINE_EDITOR_SET_PERMISSION);
+        setTeleportItem();
         setMenuItem(ItemKeys.MINE_EDITOR_BLOCKS);
         setMenuItem(ItemKeys.MINE_EDITOR_RESET);
     }
@@ -176,6 +206,38 @@ public final class MineEditorMenu extends Menu {
             inventory.setItem(slot, item);
             slotToItemKeyMap.put(slot, itemKey);
         }
+    }
+
+    private void setTeleportItem() {
+        ItemKeys key = ItemKeys.MINE_EDITOR_SET_TELEPORT;
+        ItemStack item = key.getItem();
+        if (item == null) return;
+
+        String formatted = formatTeleportLocation();
+
+        item.editMeta(meta -> {
+            List<String> lore = meta.getLore();
+            if (lore == null || lore.isEmpty()) return;
+
+            List<String> out = new ArrayList<>(lore.size());
+            for (String line : lore) out.add(line.replace("{teleport_location}", formatted));
+            meta.setLore(out);
+        });
+
+        int slot = key.getSlot();
+        if (slot >= 0 && slot < inventory.getSize()) {
+            inventory.setItem(slot, item);
+            slotToItemKeyMap.put(slot, key);
+        }
+    }
+
+    @NotNull
+    private String formatTeleportLocation() {
+        Location location = mine.getTeleportLocation();
+        if (location == null || location.getWorld() == null) return MessageProcessor.process("&cNot set");
+
+        return MessageProcessor.process(String.format(Locale.US, "&f%s &7(&f%.1f&7, &f%.1f&7, &f%.1f&7)",
+                location.getWorld().getName(), location.getX(), location.getY(), location.getZ()));
     }
 
     @Override public String getMenuName() {

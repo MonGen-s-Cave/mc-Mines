@@ -20,7 +20,8 @@ public enum ItemKeys {
     MINE_EDITOR_BLOCKS("mine-editor.items.blocks"),
     MINE_EDITOR_RESET("mine-editor.items.reset"),
     MINE_EDITOR_AREA_WAND("mine-editor.items.area-wand"),
-    MINE_EDITOR_ENTRANCE_WAND("mine-editor.items.entrance-wand");
+    MINE_EDITOR_ENTRANCE_WAND("mine-editor.items.entrance-wand"),
+    MINE_EDITOR_SET_TELEPORT("mine-editor.items.set-teleport");
 
     private final String path;
 

@@ -41,6 +41,11 @@ public enum MessageKeys {
     PROMPT_SET_PERMISSION_CLEARED("messages.prompt.editor.set-permission.cleared"),
     PROMPT_SET_PERMISSION_SET("messages.prompt.editor.set-permission.set"),
 
+    PROMPT_SET_TELEPORT_SET("messages.prompt.editor.teleport.set"),
+    PROMPT_SET_TELEPORT_CLEARED("messages.prompt.editor.teleport.cleared"),
+
+    MINE_TELEPORT_OUT("messages.mine.teleported-out"),
+
     PROMPT_BLOCK_ADD_ID("messages.prompt.editor.blocks.add.id"),
     PROMPT_BLOCK_ADD_INVALID("messages.prompt.editor.blocks.add.invalid"),
     PROMPT_BLOCK_ADD_CHANCE("messages.prompt.editor.blocks.add.chance"),

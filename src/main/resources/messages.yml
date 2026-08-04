@@ -2,60 +2,64 @@ prefix: "&#758CE3[Mines]"
 
 messages:
   reload: "%prefix% &aYou have successfully reloaded the files!"
-  no-permission: "%prefix% &cNincs jogod ehhez."
-  player-required: "%prefix% &cEzt csak játékos használhatja."
+  no-permission: "%prefix% &cYou don't have permission to do this."
+  player-required: "%prefix% &cOnly players can use this."
 
   commands:
-    mine-not-found: '%prefix% &cBánya nem található!'
-    reset-success: '%prefix% &aBánya sikeresen újratöltve!'
+    mine-not-found: '%prefix% &cMine not found!'
+    reset-success: '%prefix% &aMine successfully reset!'
 
   wand:
-    start-mine: "%prefix% &7Kijelölés indult a &emine area&7-hoz. &8(Bal: Pos1, Jobb: Pos2)"
-    start-entrance: "%prefix% &7Kijelölés indult az &bentrance area&7-hoz. &8(Bal: Pos1, Jobb: Pos2)"
-    hint-save: "%prefix% &7Mentéshez: &fSHIFT + jobb klikk"
-    need-both: "%prefix% &cElőbb jelöld ki mindkét pontot!"
-    pos1: "%prefix% &aPos1 beállítva!"
-    pos2: "%prefix% &aPos2 beállítva!"
-    done-mine: "%prefix% &aA bánya területe frissítve!"
-    done-entrance: "%prefix% &aA belépő terület frissítve!"
-    cancelled: "%prefix% &7Kijelölés megszakítva."
-    no-space: "%prefix% &cNincs hely az inventorydban a wand-nek!"
+    start-mine: "%prefix% &7Selection started for the &emine area&7. &8(Left: Pos1, Right: Pos2)"
+    start-entrance: "%prefix% &7Selection started for the &bentrance area&7. &8(Left: Pos1, Right: Pos2)"
+    hint-save: "%prefix% &7To save: &fSHIFT + right click"
+    need-both: "%prefix% &cSelect both positions first!"
+    pos1: "%prefix% &aPos1 set!"
+    pos2: "%prefix% &aPos2 set!"
+    done-mine: "%prefix% &aMine area updated!"
+    done-entrance: "%prefix% &aEntrance area updated!"
+    cancelled: "%prefix% &7Selection cancelled."
+    no-space: "%prefix% &cThere is no space in your inventory for the wand!"
     item:
       name: "&6Selection Wand"
-      lore1: "&7Bal klikk: &fPos1"
-      lore2: "&7Jobb klikk: &fPos2"
-      lore3: "&7Mentés: &fSHIFT + jobb klikk"
+      lore1: "&7Left click: &fPos1"
+      lore2: "&7Right click: &fPos2"
+      lore3: "&7Save: &fSHIFT + right click"
 
   prompt:
     create:
       name:
-        start: "%prefix% &eÍrd be az új bánya nevét (A–Za–z0–9_-, max 32)."
-        invalid: "%prefix% &cHibás név formátum!"
-        exists: "%prefix% &cMár létezik ilyen nevű bánya: {name}"
+        start: "%prefix% &eType the name of the new mine (A-Za-z0-9_-, max 32)."
+        invalid: "%prefix% &cInvalid name format!"
+        exists: "%prefix% &cA mine with this name already exists: {name}"
       reset:
-        start: "%prefix% &7Írd be a reset időt másodpercben (&f1..86400&7). Üres / '-' = &f300&7."
-        invalid-number: "%prefix% &cÉrvénytelen szám!"
-        out-of-range: "%prefix% &cA reset idő &f1..86400&c között legyen."
-      success: "%prefix% &aBánya létrehozva: &f{name}&7 (&f{seconds}s&7)."
+        start: "%prefix% &7Type the reset time in seconds (&f1..86400&7). Empty / '-' = &f300&7."
+        invalid-number: "%prefix% &cInvalid number!"
+        out-of-range: "%prefix% &cThe reset time must be between &f1..86400&c."
+      success: "%prefix% &aMine created: &f{name}&7 (&f{seconds}s&7)."
 
     editor:
       set-reset:
-        start: "%prefix% &7Írd be az &fúj reset időt &7másodpercben (&8pl: &f300&8)&7!"
-        range: "%prefix% &cA megadott idő nem megfelelő. &7(1..86400)"
-        success: "%prefix% &aSiker! &7Reset idő: &f{seconds}s"
-        invalid: "%prefix% &cÉrvénytelen számformátum!"
+        start: "%prefix% &7Type the &fnew reset time &7in seconds (&8e.g. &f300&8)&7!"
+        range: "%prefix% &cThe given time is out of range. &7(1..86400)"
+        success: "%prefix% &aSuccess! &7Reset time: &f{seconds}s"
+        invalid: "%prefix% &cInvalid number format!"
       rename-display:
-        start: '%prefix% &7Írd be az új display nevet!'
-        success: '%prefix% &aDisplay név sikeresen megváltoztatva: &f{name}'
+        start: '%prefix% &7Type the new display name!'
+        success: '%prefix% &aDisplay name successfully changed: &f{name}'
       rename:
-        start: "%prefix% &7Írd be az új bányanévet &8(&71-32 betű/szám, _ -&8)&7:"
-        invalid: "%prefix% &cÉrvénytelen név! &7Csak betű/szám, '_' és '-' engedélyezett (1-32)."
-        exists: "%prefix% &cMár létezik ilyen bánya: &f{name}"
-        success: "%prefix% &aÁtnevezve erre: &f{name}"
+        start: "%prefix% &7Type the new mine name &8(&71-32 letters/digits, _ -&8)&7:"
+        invalid: "%prefix% &cInvalid name! &7Only letters/digits, '_' and '-' are allowed (1-32)."
+        exists: "%prefix% &cA mine with this name already exists: &f{name}"
+        success: "%prefix% &aRenamed to: &f{name}"
       set-permission:
-        start: "%prefix% &7Írd be az &fbelépési permissiont&7, vagy &f-&7 a törléshez!"
-        cleared: "%prefix% &aBelépési permission törölve."
-        set: "%prefix% &aBelépési permission beállítva: &f{permission}"
+        start: "%prefix% &7Type the &fentrance permission&7, or &f-&7 to clear it!"
+        cleared: "%prefix% &aEntrance permission cleared."
+        set: "%prefix% &aEntrance permission set: &f{permission}"
+      teleport:
+        start: "%prefix% &7Stand where you want the players to be teleported!"
+        set: "%prefix% &aRecovery location set: &f{world} &7(&f{x}&7, &f{y}&7, &f{z}&7)"
+        cleared: "%prefix% &aRecovery location cleared."
 
       blocks:
         add:
@@ -66,6 +70,9 @@ messages:
           chance-range: "%prefix% &cChance must be between &f1 &cand &f100&c."
         removed: "%prefix% &aRemoved: &f{key}"
         added: "%prefix% &aAdded: &f{key} &7- &a{chance}%"
+
+  mine:
+    teleported-out: "%prefix% &eThis mine is resetting, so you were teleported to safety!"
 
   entrance:
     no-permission: "%prefix% &cYou don't have permission to enter this zone. &4({permission})"

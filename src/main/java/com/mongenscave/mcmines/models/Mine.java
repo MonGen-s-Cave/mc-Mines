@@ -33,6 +33,7 @@ public class Mine {
     @Nullable private Location entranceAreaPos1;
     @Nullable private Location entranceAreaPos2;
     @Nullable private String entrancePermission;
+    @Nullable private Location teleportLocation;
 
     private boolean visualResetEnabled = false;
     @NotNull private ResetType resetType = ResetType.SWEEP;
@@ -88,6 +89,8 @@ public class Mine {
         }
 
         if (entrancePermission != null && !entrancePermission.isEmpty()) section.set("entrance-permission", entrancePermission);
+
+        if (teleportLocation != null && teleportLocation.getWorld() != null) section.set("teleport-location", LocationUtils.serializeExact(teleportLocation));
 
         Section visualResetSection = section.createSection("visual-reset");
         visualResetSection.set("enabled", visualResetEnabled);
@@ -158,6 +161,9 @@ public class Mine {
         mine.displayName = section.getString("display-name");
 
         mine.entrancePermission = section.getString("entrance-permission");
+
+        String teleportRaw = section.getString("teleport-location");
+        if (teleportRaw != null && !teleportRaw.isEmpty()) mine.teleportLocation = LocationUtils.deserializeExact(teleportRaw);
 
         if (section.contains("visual-reset")) {
             Section visualResetSection = section.getSection("visual-reset");
@@ -243,6 +249,10 @@ public class Mine {
 
     public boolean isValidEntranceArea() {
         return entranceAreaPos1 != null && entranceAreaPos2 != null;
+    }
+
+    public boolean hasTeleportLocation() {
+        return teleportLocation != null && teleportLocation.getWorld() != null;
     }
 
     public void addBlockData(@NotNull String material, int chance) {

@@ -5,10 +5,12 @@ import com.mongenscave.mcmines.McMines;
 import com.mongenscave.mcmines.block.BlockPlatforms;
 import com.mongenscave.mcmines.config.Config;
 import com.mongenscave.mcmines.data.BlockData;
+import com.mongenscave.mcmines.identifiers.keys.MessageKeys;
 import com.mongenscave.mcmines.models.Mine;
 import com.mongenscave.mcmines.reset.Reset;
 import com.mongenscave.mcmines.reset.impl.SweepReset;
 import com.mongenscave.mcmines.reset.impl.WaveReset;
+import com.mongenscave.mcmines.utils.LocationUtils;
 import com.mongenscave.mcmines.utils.LoggerUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
@@ -19,6 +21,7 @@ import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -257,6 +260,7 @@ public class MineManager {
         renamed.setEntranceAreaPos1(mine.getEntranceAreaPos1());
         renamed.setEntranceAreaPos2(mine.getEntranceAreaPos2());
         renamed.setEntrancePermission(mine.getEntrancePermission());
+        renamed.setTeleportLocation(mine.getTeleportLocation());
 
         renamed.setVisualResetEnabled(mine.isVisualResetEnabled());
         renamed.setResetType(mine.getResetType());
@@ -296,6 +300,26 @@ public class MineManager {
         return mines.keySet();
     }
 
+    public void evacuatePlayers(@NotNull Mine mine) {
+        Location target = mine.getTeleportLocation();
+        if (target == null || target.getWorld() == null) return;
+
+        Location pos1 = mine.getMineAreaPos1();
+        Location pos2 = mine.getMineAreaPos2();
+        if (pos1 == null || pos2 == null) return;
+
+        World world = pos1.getWorld();
+        if (world == null) return;
+
+        for (Player player : world.getPlayers()) {
+            if (!LocationUtils.isInsideCuboid(player.getLocation(), pos1, pos2)) continue;
+
+            player.teleportAsync(target).thenAccept(success -> {
+                if (success) player.sendMessage(MessageKeys.MINE_TELEPORT_OUT.getMessage());
+            });
+        }
+    }
+
     @SuppressWarnings("all")
     public void resetMine(@NotNull Mine mine) {
         if (!mine.isValidMineArea()) {
@@ -310,6 +334,8 @@ public class MineManager {
             LoggerUtils.error("Cannot reset mine '" + mine.getName() + "': invalid world");
             return;
         }
+
+        evacuatePlayers(mine);
 
         if (mine.isVisualResetEnabled()) {
             Reset resetter = getResetManager(mine);
